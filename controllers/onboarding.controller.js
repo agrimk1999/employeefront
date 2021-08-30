@@ -29,6 +29,8 @@ router.post('/:empId' , (req,res,next)=> {
 
     console.log(empId,details[0])
     //we get here the tasks for the user
+    // for loop for all employees
+    // for loop for all designated employees
     onboardSchema.updateOne({
         empId : empId,
         "steps.id" : details[0]
