@@ -6,7 +6,7 @@ require('./config/database')
 
 var app=express()
 
-const adminRouter = require('./microservices/admin.service')
+const adminRouter = require('./microservices/adminbro.service')
 app.use('/admin', adminRouter)
 
 app.use(express.static(path.join(__dirname,'/public')))
