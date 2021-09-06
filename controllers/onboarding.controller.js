@@ -56,4 +56,43 @@ router.post('/:empId' , (req,res,next)=> {
 
 })
 
+router.post('/task/designation', (req,res,next)=> {
+    var designation=req.body.designation
+    var task=req.body.tasks
+
+    console.log(designation,task)
+
+    onboardSchema.updateMany({designation : designation} , {
+        $push : {
+            steps : task
+        }
+    },{new : true,upsert : true}, (err,result)=> {
+        if(err)
+        {
+            console.log('error in onboarding task designation',err)
+            res.sendStatus(404)
+        }else{
+            console.log(result)
+            res.sendStatus(200)
+        }
+    })
+})
+router.post('/task/forAll' , (req,res,next)=> {
+    var task=req.body.tasks
+    console.log(task)
+    onboardSchema.updateMany({} , {
+        $push : {
+            steps : task
+        }
+    },{new : true,upsert : true}, (err,result)=> {
+        if(err)
+        {
+            console.log('error in onboarding steps for all' , err)
+            res.sendStatus(404)
+        }else{
+            console.log(result)
+            res.sendStatus(200)
+        }
+    })
+})
 module.exports=router

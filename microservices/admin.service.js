@@ -3,6 +3,9 @@ var path=require('path')
 var cors = require('cors')
 const passport = require('passport')
 const passportSetup = require('./services/passport');
+const keys = require('../config/keys')
+const cookieSession = require('cookie-session');
+const cookieparser=require('cookie-parser')
 const request=require('request')
 
 require('../config/database')
@@ -13,19 +16,46 @@ app.use(express.static(path.join(__dirname,'/public')))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors())
+app.use(cookieparser())
 
 app.set('view engine' , 'jade')
+
+app.use(cookieSession({
+    keys: [keys.session.cookieKey],
+    maxAge: (24*60*60 * 1000)
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-const UserSchema = require('../models/user.model')
-//main is authentication for admin as well using email and password fields for admin login
-//passport local strategy or jwt
-//do this after all making all routes
+const UserSchema = require('../models/user.model');
 
 
-app.get('/' , (req,res,next)=> {
+var authCheck = (req,res,next)=> {
+    // console.log('in authcheck' , req.session)
+    if(!req.isAuthenticated()){
+        res.redirect('/');
+    } else {
+        next();
+    }
+}
+
+var isAuthenticated = (req,res,next)=> {
+    console.log('in authenticated' , req.session)
+    if(req.user)
+    {
+        if(req.user.role==1)
+        {
+            res.redirect('/adminDashboardEmployee')
+        }else{
+            res.redirect(`/empDashboard/${req.user.empId}`)
+        }
+    }else{
+        next()
+    }
+}
+
+app.get('/' , isAuthenticated,(req,res,next)=> {
     res.render('home')
 })
 
@@ -67,7 +97,7 @@ app.get('/auth/google/redirect', passport.authenticate('google'), (req, res) => 
 //add an employee 
 //edit the details of an employee
 //get all employees
-app.get('/adminDashboardEmployee' , (req,res,next)=> {
+app.get('/adminDashboardEmployee' , authCheck,(req,res,next)=> {
     // res.send('welcome to admi:n dashboard for employees')
     var url='http://localhost:8080/user/all/employees'
     request.get({
@@ -86,7 +116,14 @@ app.get('/adminDashboardEmployee' , (req,res,next)=> {
     
 })
 
-app.post('/adminAddEmployee',(req,res,next)=> {
+app.get('/adminLogout', authCheck,(req, res) => {
+    req.logout()
+    res.redirect('/')
+    
+});
+
+
+app.post('/adminAddEmployee',authCheck,(req,res,next)=> {
     var empDetails=req.body
     var url='http://localhost:8080/user/employee'
     request.post({
@@ -98,34 +135,106 @@ app.post('/adminAddEmployee',(req,res,next)=> {
         {
             console.log('error in add employee' ,error)
         }else{
-            res.send('added successfully')
+            res.send({message : 'added successfully'})
         }
     })
 })
 
-app.post('/editAnEmployee' , (req,res,next)=> {
-    var details=req.body.details
-    var url='http:localhost:8080/user/employee'
+app.post('/editAnEmployee' ,authCheck, (req,res,next)=> {
+    var details=req.body
+    var url='http://localhost:8080/user/employee'
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
-        body : JSON.stringify(empDetails)
+        body : JSON.stringify(details)
     }, (error,respose,body)=> {
         if(error)
         {
             console.log('error in add employee' ,error)
         }else{
-            res.send('added successfully')
+            res.send({message  : 'edited successfully'})
         }
     })
 })
 //add a to do task wrt designation
 //add a common to do task
+app.post('/addToDo' ,authCheck, (req,res,next)=> {
+    var onboardDetails=req.body
+
+    var url='http://localhost:8080/onboarding/task/designation'
+    request.post({
+        headers: {'content-type' : 'application/json'},
+        url : url,
+        body : JSON.stringify(onboardDetails)
+    },(error,response,body)=>{
+        if(error)
+        {
+            console.log('error in add onboarding' ,error)
+        }else{
+            res.send({message : 'added successfully'})
+        }
+    })
+})
+
+app.post('/addToDoforAll' , authCheck,(req,res,next)=> {
+    var onboardDetails=req.body
+
+    var url='http://localhost:8080/onboarding/task/forAll'
+    request.post({
+        headers: {'content-type' : 'application/json'},
+        url : url,
+        body : JSON.stringify(onboardDetails)
+    },(error,response,body)=>{
+        if(error)
+        {
+            console.log('error in add task for all' ,error)
+        }else{
+            res.send({message : 'added successfully'})
+        }
+    })
+})
 
 //make a course
+app.post('/adminAddCourse' ,authCheck, (req,res,next)=> {
+    var courseDetails=req.body
+
+    var url='http://localhost:8080/course/add/course'
+    request.post({
+        headers: {'content-type' : 'application/json'},
+        url : url,
+        body : JSON.stringify(courseDetails)
+    },(error,response,body)=>{
+        if(error)
+        {
+            console.log('error in add task for all' ,error)
+        }else{
+            res.send({message: 'added successfully'})
+        }
+    })
+})
 //add a new course for a designation
+app.post('/adminCourseDesignation' ,authCheck, (req,res,next)=> {
+    var courseDetaills=req.body
+    var url='http://localhost:8080/course/designation/course'
+    request.post({
+        headers: {'content-type' : 'application/json'},
+        url : url,
+        body : JSON.stringify(courseDetaills)
+    },(error,response,body)=>{
+        if(error)
+        {
+            console.log('error in add task for all' ,error)
+        }else{
+            res.send({message:'added successfully'})
+        }
+    })
+})
+
 
 
 app.listen(7901,()=> {
     console.log('Admin server has started')
 })
+
+
+module.exports=app

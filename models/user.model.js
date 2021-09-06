@@ -31,8 +31,7 @@ const UserSchema=mongoose.Schema({
             required : true
         },
         dob : {
-            type : Date,
-            required : true
+            type : Date
         },
         email  :{
             type : String,

@@ -75,4 +75,40 @@ router.post('/update' , (req,res,next)=> {
     })
 })
 
+router.post('/add/course' , async (req,res,next)=> {
+    var courseDetails=req.body
+    // console.log(courseDetails)
+    await courseSchema.insertMany(courseDetails)
+    .then((result)=> {
+        console.log(result)
+        res.sendStatus(200)
+    })
+    .catch((err)=> {
+        console.log('error in adding all courses',err)
+        res.sendStatus(404)
+    })
+    
+})
+
+router.post('/designation/course' , (req,res,next)=> {
+    var desgnation=req.body.designation
+    var courses = req.body.courses
+
+    UserSchema.updateMany({designation : desgnation} , {
+        $push : {
+            courseID : courses
+        }
+    }, {new : true , upsert: true}, (err,result)=> {
+        if(err)
+        {
+            console.log('error in adding course for designation' , err)
+            res.sendStatus(404)
+
+        }else{
+            console.log(result)
+            res.sendStatus(200)
+        }
+    })
+})
+
 module.exports=router

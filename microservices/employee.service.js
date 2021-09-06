@@ -35,8 +35,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 var authCheck = (req,res,next)=> {
-    console.log('in authcheck' , req.session)
-    if(!req.user){
+    // console.log('in authcheck' , req.session)
+    if(!req.isAuthenticated()){
         res.redirect('/');
     } else {
         next();
@@ -44,8 +44,8 @@ var authCheck = (req,res,next)=> {
 }
 
 var isAuthenticated = (req,res,next)=> {
-    console.log('in authenticated' , req.session)
-    if(req.user)
+    // console.log('in authenticated' , req.session)
+    if(req.isAuthenticated())
     {
         if(req.user.role==1)
         {
@@ -126,15 +126,16 @@ app.get('/empDashboard/:empId' ,authCheck, (req,res,next)=> {
     }
     var status=200
     getRequestToEmployee(empId).then((result)=> {
-        console.log('Promise',result)
+        // console.log('Promise',result)
         output.courseEmp=result
         getRequestToonBoarding(empId).then((data)=> {
-            console.log('Prromise 2' , data)
+            // console.log('Prromise 2' , data)
             output.tasks={...data}
-            console.log(output)
-            res.render('empDashboard' , {'emp' : output})
+            // console.log(output)
+            // res.render('empDashboard' , {'emp' : output})
+            res.send({'emp' : output})
         }).catch((err)=> {
-            console.log('Promise 2', err.message)
+            // console.log('Promise 2', err.message)
             if(err.message=='Error Message : 403')
         {
             res.send('User not found')
@@ -143,7 +144,7 @@ app.get('/empDashboard/:empId' ,authCheck, (req,res,next)=> {
         }
         })
         }).catch((err)=> {
-        console.log('Promise',err.message)
+        // console.log('Promise',err.message)
         if(err.message=='Error Message : 403')
         {
             res.send('User not found')
@@ -177,8 +178,9 @@ app.post('/empUpdateCourses' , authCheck,(req,res,next)=> {
         if(err)
         {
             console.log('error in updating',err)
+            res.sendStatus(404)
         }else{
-            res.send('updated succesfully')
+            res.send({message : 'updated succesfully'})
         }
     })
 })
@@ -201,7 +203,7 @@ app.post('/empUpdateToDo' , authCheck,(req,res,next)=> {
         {
             console.log('error in updating',err)
         }else{
-            res.send('updated succesfully')
+            res.send({message : 'updated succesfully'})
         }
     })
 })
@@ -264,9 +266,7 @@ form.uploadDir = uploadFolder;
     })
 })
 
-app.listen(7901, ()=> {
-    console.log('Employee service started')
-})
+
 
 
 async function getRequestToEmployee(empId){
@@ -325,3 +325,8 @@ async function getRequestToonBoarding(empId){
     })
 }
 
+app.listen(7901, ()=> {
+    console.log('Employee service started')
+})
+
+module.exports=app

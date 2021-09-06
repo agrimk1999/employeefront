@@ -20,7 +20,7 @@ const courseSchema=mongoose.Schema({
         type : String
     },
     weightage : {
-        type : String,
+        type : Number,
         required : true
     }
 })

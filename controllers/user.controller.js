@@ -38,20 +38,31 @@ router.get('/all/employees' , (req,res,next)=> {
 router.post('/employee' , (req,res,next)=> {
     //update user details 
     var empDetails=req.body
-    console.log(empDetails.courseID)
-    res.sendStatus(200)
+    var courses=empDetails.courseID
+    // courses=courses.split(';')
+    console.log(courses)
+    // courses=courses.forEach(element => {
+    //     return JSON.parse(element)
+    // });
+    // console.log(courses)
     UserSchema.findOneAndUpdate({empId : empDetails.empId} , {
-        firstName : empDetails.firstName,
-        lastName : empDetails.lastName,
-        email : empDetails.email,
-        empId : empDetails.empId,
-        designation : empDetails.designation
+       $set : {
+           firstName : empDetails.firstName,
+           lastName : empDetails.lastName,
+           designation : empDetails.designation,
+           address : empDetails.address,
+           email : empDetails.email
+       },
+       $push : {
+        courseID : courses
+    }
     }, {new : true,upsert : true},(error,result)=> {
         if(error){
             console.log('error in updating or adding',error)
             res.sendStatus(404)
         }else{
             console.log(result)
+            res.sendStatus(200)
         }
     })
 })
