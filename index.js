@@ -3,6 +3,7 @@ const cors=require('cors')
 const path=require('path')
 
 require('./config/database')
+require('dotenv').config()
 
 var app=express()
 
@@ -20,6 +21,6 @@ app.set('view engine' , 'jade')
 app.use('/user/' , require('./controllers/user.controller'))
 app.use('/onboarding/' , require('./controllers/onboarding.controller'))
 app.use('/course/',require('./controllers/course.controller'))
-app.listen(8080,()=> {
-    console.log('Server started')
+app.listen(process.env.PORT || 8080,()=> {
+    console.log(`Server started on port ${process.env.PORT}`)
 })
