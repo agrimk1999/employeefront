@@ -49,7 +49,7 @@ var isAuthenticated = (req,res,next)=> {
     {
         if(req.user.role==1)
         {
-            res.redirect('http://localhost:8080/admin')
+            res.redirect('/adminDashboardEmployee')
         }else{
             res.redirect(`/empDashboard/${req.user.empId}`)
         }
@@ -58,7 +58,7 @@ var isAuthenticated = (req,res,next)=> {
     }
 }
 
-app.get('/' , (req,res)=> {
+app.get('/' , isAuthenticated,  (req,res)=> {
     
     res.render('home', {user : req.user})
 })
@@ -74,9 +74,12 @@ app.get('/auth/google', passport.authenticate('google', {
 }));
 
 
-app.get('/auth/google/redirect', passport.authenticate('google'), (req, res) => {
+app.get('/auth/google/redirect', passport.authenticate('google', {
+    failureRedirect : '/'
+}), (req, res) => {
     
     //I will get role here and empId as well
+    
     var user=req.user
     var empId=user.empId
     console.log('req user',user)
@@ -89,13 +92,13 @@ app.get('/auth/google/redirect', passport.authenticate('google'), (req, res) => 
             console.log(result)
             if(!result)
             {
-                res.redirect('/employeeLogin')
+                res.redirect('/')
             }else{
                 req.user=result
                 //employee dashboard or admin based on role
                 if(result.role==1)
                 {
-                    res.redirect('http://localhost:8080/admin')
+                    res.redirect('/adminDashboardEmployee')
                 }else {
                 res.redirect(`/empDashboard/${empId}`)
                 }
@@ -104,17 +107,6 @@ app.get('/auth/google/redirect', passport.authenticate('google'), (req, res) => 
     })
 });
 
-
-app.get('/employeeLogin' , isAuthenticated , (req,res,next)=> {
-   res.render('Login')
-})
-
-app.post('/employeeLogin' , (req,res,next)=> {
-    var empId=req.body.empId
-    var pass=req.body.password
-
-    res.redirect(`empDashboard/${empId}`)
-})
 
 app.get('/empDashboard/:empId' ,authCheck, (req,res,next)=> {
     var empId=req.params['empId']

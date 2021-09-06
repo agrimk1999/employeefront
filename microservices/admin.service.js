@@ -64,7 +64,9 @@ app.get('/auth/google', passport.authenticate('google', {
 }));
 
 
-app.get('/auth/google/redirect', passport.authenticate('google'), (req, res) => {
+app.get('/auth/google/redirect', passport.authenticate('google' , {
+    failureRedirect : '/'
+}), (req, res) => {
     
     //I will get role here and empId as well
     var user=req.user
