@@ -12,6 +12,7 @@ const formidable=require('formidable')
 const fs=require('fs')
 
 require('../config/database')
+require('dotenv').config({path: path.join(__dirname,'..','.env')})
 
 
 var app=express()
@@ -25,7 +26,7 @@ app.use(cookieparser())
 app.set('view engine' , 'jade')
 
 const UserSchema = require('../models/user.model')
-const courseSchema=require('../models/course.model')
+
 app.use(cookieSession({
     keys: [keys.session.cookieKey],
     maxAge: (24*60*60 * 1000)
@@ -110,7 +111,7 @@ app.get('/auth/google/redirect', passport.authenticate('google', {
 
 app.get('/empDashboard/:empId' ,authCheck, (req,res,next)=> {
     var empId=req.params['empId']
-    var url=`http://localhost:8080/user/${empId}`
+    var url=`${process.env.APIENDPOINT}/user/${empId}`
     localStorage.setItem('empId' , empId)
     var output = {
         "tasks" : {},
@@ -164,7 +165,7 @@ app.post('/empUpdateCourses' , authCheck,(req,res,next)=> {
         "empId" : empId,
         "details" : checkedSteps
     }
-    var url = 'http://localhost:8080/course/update'
+    var url = `${process.env.APIENDPOINT}/course/update`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -172,7 +173,7 @@ app.post('/empUpdateCourses' , authCheck,(req,res,next)=> {
     },(err,response,body)=> {
         if(err)
         {
-            console.log('error in updating',err)
+            // console.log('error in updating',err)
             res.sendStatus(404)
         }else{
             res.send({message : 'updated succesfully'})
@@ -188,7 +189,7 @@ app.post('/empUpdateToDo' , authCheck,(req,res,next)=> {
         "empId" : empId,
         "details" : checkedSteps
     }
-    var url = `http://localhost:8080/onboarding/${empId}`
+    var url = `${process.env.APIENDPOINT}/onboarding/${empId}`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -196,7 +197,8 @@ app.post('/empUpdateToDo' , authCheck,(req,res,next)=> {
     },(err,response,body)=> {
         if(err)
         {
-            console.log('error in updating',err)
+            // console.log('error in updating',err)
+            res.send({message : 'Error in updating tasks'})
         }else{
             res.send({message : 'updated succesfully'})
         }
@@ -216,13 +218,13 @@ const isFileValid = (file) => {
 app.post('/uploadProfile' , authCheck , (req,res)=> {
     var form=new formidable.IncomingForm()
     const uploadFolder=path.join(__dirname,'public','images')
-    console.log(form)
+    // console.log(form)
     form.mutliples=false
 form.maxFileSize = 50 * 1024 * 1024; // 5MB
 form.uploadDir = uploadFolder;
     form.parse(req, function(error,fields,files){
-        console.log(files)
-        console.log(fields)
+        // console.log(files)
+        // console.log(fields)
         const file = files.empProfile;
         const isValid = isFileValid(file);
   // creates a valid name by removing spaces
@@ -240,6 +242,7 @@ form.uploadDir = uploadFolder;
     fs.renameSync(file.path, path.join(uploadFolder, fileName));
   } catch (error) {
     console.log(error);
+    return res.send(error)
   }
 
   console.log(fileName)
@@ -265,7 +268,7 @@ form.uploadDir = uploadFolder;
 
 
 async function getRequestToEmployee(empId){
-    var url=`http://localhost:8080/user/${empId}`
+    var url=`${process.env.APIENDPOINT}/user/${empId}`
     return new Promise(function(resolve,reject){
         request.get({
             url : url
@@ -293,7 +296,7 @@ async function getRequestToEmployee(empId){
 }
 
 async function getRequestToonBoarding(empId){
-    var url=`http://localhost:8080/onboarding/${empId}`
+    var url=`${process.env.APIENDPOINT}/onboarding/${empId}`
     return new Promise(function(resolve,reject){
         request.get({
             url : url
@@ -320,8 +323,10 @@ async function getRequestToonBoarding(empId){
     })
 }
 
-app.listen(7901, ()=> {
-    console.log('Employee service started')
+app.listen(process.env.PORT_SERVICE || 7901, ()=> {
+    console.log(`Employee service started on ${process.env.PORT_SERVICE}`)
 })
+
+// console.log(process.env.APIENDPOINT)
 
 module.exports=app

@@ -48,7 +48,7 @@ let onboardUser={
 
 
 beforeEach((done) => {
-    mongoose.connect("mongodb://127.0.0.1:27017/JestDB",
+    mongoose.connect("mongodb+srv://admin:admin@employeeonboarding.8cpnr.mongodb.net/JestDB?retryWrites=true&w=majority",
       { useNewUrlParser: true, useUnifiedTopology: true },
       () => done());
 

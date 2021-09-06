@@ -108,11 +108,11 @@ let taskforAll = {
     tasks : [
         {
             id : 'submit pan',
-            isCompleted : 0
+            isCompleted : false
         },
         {
             id : 'laptop',
-            isCompleted : 0
+            isCompleted : false
         }
     ]
 }
@@ -153,7 +153,7 @@ let courseDesignation= {
 
 
 beforeEach((done) => {
-    mongoose.connect("mongodb://127.0.0.1:27017/JestDB",
+    mongoose.connect("mongodb+srv://admin:admin@employeeonboarding.8cpnr.mongodb.net/JestDB?retryWrites=true&w=majority",
       { useNewUrlParser: true, useUnifiedTopology: true },
       () => done());
 
@@ -193,7 +193,7 @@ beforeEach((done) => {
       .then(async (response)=> {
           expect(response.body.message).toBe('added successfully')
           let output=await User.findOne({empId : 'EMP002'})
-          console.log(output)
+        //   console.log(output)
 
           expect(output.firstName).toBe('Ayush')
     
@@ -278,7 +278,7 @@ beforeEach((done) => {
     .then(async (response)=> {
         expect(response.body.message).toBe('added successfully')
         const output=await Course.find({})
-        console.log(output)
+        // console.log(output)
         expect(output.length).toBe(3)
         expect(output[0].courseID).toBe('J')
         expect(output[1].weightage).toBe(10)

@@ -9,6 +9,7 @@ const cookieparser=require('cookie-parser')
 const request=require('request')
 
 require('../config/database')
+require('dotenv').config({path: path.join(__dirname,'..','.env')})
 
 var app=express()
 
@@ -101,12 +102,12 @@ app.get('/auth/google/redirect', passport.authenticate('google' , {
 //get all employees
 app.get('/adminDashboardEmployee' , authCheck,(req,res,next)=> {
     // res.send('welcome to admi:n dashboard for employees')
-    var url='http://localhost:8080/user/all/employees'
+    var url=`${process.env.APIENDPOINT}/user/all/employees`
     request.get({
         url : url
     }, (error,response,body)=> {
         if(error){
-            console.log('error in admin user', error)
+            // console.log('error in admin user', error)
             res.send('Cant get users')
         }else{
            
@@ -127,7 +128,7 @@ app.get('/adminLogout', authCheck,(req, res) => {
 
 app.post('/adminAddEmployee',authCheck,(req,res,next)=> {
     var empDetails=req.body
-    var url='http://localhost:8080/user/employee'
+    var url=`${process.env.APIENDPOINT}/user/employee`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -135,7 +136,8 @@ app.post('/adminAddEmployee',authCheck,(req,res,next)=> {
     }, (error,respose,body)=> {
         if(error)
         {
-            console.log('error in add employee' ,error)
+            // console.log('error in add employee' ,error)
+            res.send(new Error('error in adding employee'))
         }else{
             res.send({message : 'added successfully'})
         }
@@ -144,7 +146,7 @@ app.post('/adminAddEmployee',authCheck,(req,res,next)=> {
 
 app.post('/editAnEmployee' ,authCheck, (req,res,next)=> {
     var details=req.body
-    var url='http://localhost:8080/user/employee'
+    var url=`${process.env.APIENDPOINT}/user/employee`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -152,7 +154,8 @@ app.post('/editAnEmployee' ,authCheck, (req,res,next)=> {
     }, (error,respose,body)=> {
         if(error)
         {
-            console.log('error in add employee' ,error)
+            // console.log('error in add employee' ,error)
+            res.send(new Error('error in editing employee'))
         }else{
             res.send({message  : 'edited successfully'})
         }
@@ -163,7 +166,7 @@ app.post('/editAnEmployee' ,authCheck, (req,res,next)=> {
 app.post('/addToDo' ,authCheck, (req,res,next)=> {
     var onboardDetails=req.body
 
-    var url='http://localhost:8080/onboarding/task/designation'
+    var url=`${process.env.APIENDPOINT}/onboarding/task/designation`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -171,7 +174,8 @@ app.post('/addToDo' ,authCheck, (req,res,next)=> {
     },(error,response,body)=>{
         if(error)
         {
-            console.log('error in add onboarding' ,error)
+            // console.log('error in add onboarding' ,error)
+            res.send(new Error('error in adding onboarding task'))
         }else{
             res.send({message : 'added successfully'})
         }
@@ -181,7 +185,7 @@ app.post('/addToDo' ,authCheck, (req,res,next)=> {
 app.post('/addToDoforAll' , authCheck,(req,res,next)=> {
     var onboardDetails=req.body
 
-    var url='http://localhost:8080/onboarding/task/forAll'
+    var url=`${process.env.APIENDPOINT}/onboarding/task/forAll`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -189,7 +193,8 @@ app.post('/addToDoforAll' , authCheck,(req,res,next)=> {
     },(error,response,body)=>{
         if(error)
         {
-            console.log('error in add task for all' ,error)
+            // console.log('error in add task for all' ,error)
+            res.send(new Error('error in adding task for all'))
         }else{
             res.send({message : 'added successfully'})
         }
@@ -200,7 +205,7 @@ app.post('/addToDoforAll' , authCheck,(req,res,next)=> {
 app.post('/adminAddCourse' ,authCheck, (req,res,next)=> {
     var courseDetails=req.body
 
-    var url='http://localhost:8080/course/add/course'
+    var url=`${process.env.APIENDPOINT}/course/add/course`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -208,7 +213,8 @@ app.post('/adminAddCourse' ,authCheck, (req,res,next)=> {
     },(error,response,body)=>{
         if(error)
         {
-            console.log('error in add task for all' ,error)
+            // console.log('error in add task for all' ,error)
+            res.send(new Error('error in adding course'))
         }else{
             res.send({message: 'added successfully'})
         }
@@ -217,7 +223,7 @@ app.post('/adminAddCourse' ,authCheck, (req,res,next)=> {
 //add a new course for a designation
 app.post('/adminCourseDesignation' ,authCheck, (req,res,next)=> {
     var courseDetaills=req.body
-    var url='http://localhost:8080/course/designation/course'
+    var url=`${process.env.APIENDPOINT}/course/designation/course`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -225,7 +231,8 @@ app.post('/adminCourseDesignation' ,authCheck, (req,res,next)=> {
     },(error,response,body)=>{
         if(error)
         {
-            console.log('error in add task for all' ,error)
+            // console.log('error in add task for all' ,error)
+            res.send(new Error('error in adding course designation'))
         }else{
             res.send({message:'added successfully'})
         }
@@ -234,8 +241,8 @@ app.post('/adminCourseDesignation' ,authCheck, (req,res,next)=> {
 
 
 
-app.listen(7901,()=> {
-    console.log('Admin server has started')
+app.listen(process.env.PORT_SERVICE || 7901, ()=> {
+    console.log(`Admin service started on ${process.env.PORT_SERVICE}`)
 })
 
 
