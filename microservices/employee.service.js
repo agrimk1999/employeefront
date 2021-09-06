@@ -163,6 +163,9 @@ app.post('/empUpdateCourses' , authCheck,(req,res,next)=> {
     var checkedSteps=[{
         'name':'JAVA',
         'amountCompleted' : 20
+    },{
+        'name' : 'C',
+        'amountCompleted' : 10
     }
     ]
     var obj={
@@ -188,7 +191,7 @@ app.post('/empUpdateCourses' , authCheck,(req,res,next)=> {
 
 app.post('/empUpdateToDo' , authCheck,(req,res,next)=> {
     var empId=localStorage.getItem('empId')
-    var checkedSteps=['submit pan']
+    var checkedSteps=[{task :'submit pan'}, {task : 'Laptop'}]
     var obj={
         "empId" : empId,
         "details" : checkedSteps

@@ -86,10 +86,11 @@ beforeEach((done) => {
       
       await supertest(app).post('/empUpdateCourses')
       .expect(200)
-      .then((response)=> {
+      .then(async (response)=> {
           expect(response.body.message).toBe('updated succesfully')
           const courseEmp=await User.findOne({empId : user.empId})
       expect(courseEmp.courseID[0].amountCompleted).toBe(20)
+      expect(courseEmp.courseID[2].amountCompleted).toBe(10)
       })
 
       
@@ -103,7 +104,7 @@ beforeEach((done) => {
 
       await supertest(app).post('/empUpdateToDo')
       .expect(200)
-      .then((response)=> {
+      .then(async (response)=> {
           expect(response.body.message).toBe('updated succesfully')
           const onboardusertemp= await onboard.findOne({empId : user.empId})
     //  console.log(onboardusertemp)

@@ -6,8 +6,8 @@ require('./config/database')
 
 var app=express()
 
-const adminRouter = require('./microservices/adminbro.service')
-app.use('/admin', adminRouter)
+// const adminRouter = require('./microservices/adminbro.service')
+// app.use('/admin', adminRouter)
 
 app.use(express.static(path.join(__dirname,'/public')))
 app.use(express.json());

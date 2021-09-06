@@ -31,29 +31,24 @@ router.post('/:empId' , (req,res,next)=> {
     //we get here the tasks for the user
     // for loop for all employees
     // for loop for all designated employees
-    onboardSchema.updateOne({
+   const promises=details.map(async (det)=> {
+       return await  onboardSchema.updateOne({
         empId : empId,
-        "steps.id" : details[0]
+        "steps.id" : det.task
     } , {
         $set : {
             "steps.$.isCompleted" : true
         }
-    },(err,result)=> {
-        if(err)
-        {
-            console.log(err)
-            res.sendStatus(404)
-        }else{
-            if(!result)
-            {
-                res.send('Cant update')
-            }else{
-                console.log(result)
-                res.sendStatus(200)
-            }
-        }
+        })
     })
-
+    Promise.all(promises)
+    .then((result)=> {
+        console.log(result)
+        res.sendStatus(200)
+    }).catch((err)=> {
+        console.log('error in marking to do true',err)
+        res.sendStatus(404)
+    })
 })
 
 router.post('/task/designation', (req,res,next)=> {

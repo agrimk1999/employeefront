@@ -46,7 +46,7 @@ router.get('/:empId' , (req,res,next)=> {
 })
 
 
-router.post('/update' , (req,res,next)=> {
+router.post('/update' , async (req,res,next)=> {
     var empId=req.body.empId
     var details=req.body.details
     var courseName=details[0].name
@@ -54,25 +54,25 @@ router.post('/update' , (req,res,next)=> {
     //update employee information
     console.log(empId,details[0])
     console.log(courseName,amount)
-
-    UserSchema.updateOne({
+   const promises=details.map(async (det)=> {
+    return await UserSchema.updateOne({
         empId : empId,
-        "courseID.id" : courseName
+        "courseID.id" : det.name
     },{
         $set : {
-            "courseID.$.amountCompleted" : amount
+            "courseID.$.amountCompleted" : det.amountCompleted
         }
-    },(err,result)=> {
-        if(err)
-        {
-            console.log('error in course updating' , err)
-            res.sendStatus(404)
-        }else{
-            console.log(result)
-            res.sendStatus(200)
-        }
-
     })
+   })
+
+   Promise.all(promises)
+   .then((response)=> {
+       console.log(response)
+       res.sendStatus(200)
+   }).catch((err)=> {
+       console.log('error in updating course amount completed',err)
+       res.sendStatus(404)
+   })
 })
 
 router.post('/add/course' , async (req,res,next)=> {
@@ -90,25 +90,25 @@ router.post('/add/course' , async (req,res,next)=> {
     
 })
 
-router.post('/designation/course' , (req,res,next)=> {
+router.post('/designation/course' , async (req,res,next)=> {
     var desgnation=req.body.designation
     var courses = req.body.courses
 
-    UserSchema.updateMany({designation : desgnation} , {
+    await UserSchema.updateMany({designation : desgnation} , {
         $push : {
             courseID : courses
         }
-    }, {new : true , upsert: true}, (err,result)=> {
-        if(err)
-        {
-            console.log('error in adding course for designation' , err)
-            res.sendStatus(404)
-
-        }else{
-            console.log(result)
-            res.sendStatus(200)
-        }
+    }, {new : true , upsert: true})
+    .then((result)=> {
+        console.log(result)
+        res.sendStatus(200)
+    }).catch((err)=> {
+        console.log('error in adding course for designation',err)
+        res.sendStatus(404)
     })
 })
+
+
+
 
 module.exports=router
