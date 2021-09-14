@@ -4,7 +4,7 @@ const supertest=require('supertest')
 const User=require('../models/user.model')
 const onboard=require('../models/onboarding.model')
 
-let user={
+let empuser={
     firstName : 'Ayush',
     lastName : 'Sonthalia',
     empId : 'EMP002',
@@ -86,13 +86,13 @@ beforeEach((done) => {
     });
 
   });
-let token='eyJhbGciOiJIUzI1NiJ9.YWdyaW0xMTI1NTE5ODFAZ21haWwuY29t.fCyHjjdxIAD0mlBCK6nsQTJaiwIQeQOFVhKt8up9ouw'
+let token2='eyJhbGciOiJIUzI1NiJ9.YWdyaW0xMTI1NTE5ODFAZ21haWwuY29t.fCyHjjdxIAD0mlBCK6nsQTJaiwIQeQOFVhKt8up9ouw'
 
   test('Get Employee Dashboard' , async ()=> {
-      await User.create({...user}).then(async ()=> {
+      await User.create({...empuser}).then(async ()=> {
         await onboard.create({...onboardUser}).then(async ()=> {
             await supertest(app).get(`/empDashboard/${user.empId}`)
-            .set('Authorization',"Bearer "+token)
+            .set('Authorization',"Bearer "+token2)
             .expect(200)
             .then((response)=> {
               //   console.log(response.body)
@@ -110,7 +110,7 @@ let token='eyJhbGciOiJIUzI1NiJ9.YWdyaW0xMTI1NTE5ODFAZ21haWwuY29t.fCyHjjdxIAD0mlB
   test('POST Update Employee Course' , async ()=> {
       await User.create({...user}).then(async ()=> {
         await supertest(app).post('/empUpdateCourses')
-        .set('Authorization',"Bearer "+token)
+        .set('Authorization',"Bearer "+token2)
         .expect(200)
         .then(async (response)=> {
             expect(response.body.message).toBe('updated succesfully')
@@ -131,7 +131,7 @@ let token='eyJhbGciOiJIUzI1NiJ9.YWdyaW0xMTI1NTE5ODFAZ21haWwuY29t.fCyHjjdxIAD0mlB
      await User.create({...user}).then(async ()=> {
         await onboard.create({...onboardUser}).then(async ()=> {
             await supertest(app).post('/empUpdateToDo')
-            .set('Authorization',"Bearer "+token)
+            .set('Authorization',"Bearer "+token2)
             .expect(200)
             .then(async (response)=> {
                 expect(response.body.message).toBe('updated succesfully')
@@ -151,7 +151,7 @@ let token='eyJhbGciOiJIUzI1NiJ9.YWdyaW0xMTI1NTE5ODFAZ21haWwuY29t.fCyHjjdxIAD0mlB
   test('GET Employee Dashboard with no EMPID in database', async ()=> {
 
     await supertest(app).get('/empDashboard/EMP008')
-    .set('Authorization',"Bearer "+token)
+    .set('Authorization',"Bearer "+token2)
     .expect(401)
   })
 
@@ -159,7 +159,7 @@ let token='eyJhbGciOiJIUzI1NiJ9.YWdyaW0xMTI1NTE5ODFAZ21haWwuY29t.fCyHjjdxIAD0mlB
       User.create({...userTemp})
 
       await supertest(app).get('/empDashboard/EMP004')
-      .set('Authorization',"Bearer "+token)
+      .set('Authorization',"Bearer "+token2)
       .expect(401)
       
   })

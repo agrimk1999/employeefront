@@ -18,7 +18,7 @@ const doc=require('../openapi.json')
 
 var app=express()
 
-
+const {PORT,PORT_SERVICE_EMPLOYEE,APIENDPOINT}=require('../config/keys')
 
 app.use(express.static(path.join(__dirname,'/public')))
 app.use(express.json());
@@ -110,7 +110,7 @@ app.post('/empUpdateCourses',authenticate,(req,res,next)=> {
         "empId" : empId,
         "details" : checkedSteps
     }
-    var url = `${process.env.APIENDPOINT}/course/update`
+    var url = `${APIENDPOINT}/course/update`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -143,7 +143,7 @@ app.post('/empUpdateToDo',authenticate,(req,res,next)=> {
         "empId" : empId,
         "details" : checkedSteps
     }
-    var url = `${process.env.APIENDPOINT}/onboarding/${empId}`
+    var url = `${APIENDPOINT}/onboarding/${empId}`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -173,7 +173,7 @@ app.get('/adminDashboardEmployee' , authenticate,isAdmin,(req,res,next)=> {
        courseUsers : {},
        taskUsers : {}
    }
-   var url=`${process.env.APIENDPOINT}/user/all/employees`
+   var url=`${APIENDPOINT}/user/all/employees`
    request.get({
        url : url
    }, (error,response,body)=> {
@@ -188,7 +188,7 @@ app.get('/adminDashboardEmployee' , authenticate,isAdmin,(req,res,next)=> {
            finalOutput.courseUsers=allUsers
 
            request.get({
-               url : 'http://localhost:8080/onboarding/all/userOnboarding'
+               url : `${APIENDPOINT}/onboarding/all/userOnboarding`
            }, (error,response,body)=> {
                if(error)
                {
@@ -223,7 +223,7 @@ app.get('/adminDashboardEmployee' , authenticate,isAdmin,(req,res,next)=> {
 
 app.post('/adminAddEmployee',authenticate,isAdmin,(req,res,next)=> {
    var empDetails=req.body
-   var url=`${process.env.APIENDPOINT}/user/employee`
+   var url=`${APIENDPOINT}/user/employee`
    request.post({
        headers: {'content-type' : 'application/json'},
        url : url,
@@ -250,7 +250,7 @@ app.post('/adminAddEmployee',authenticate,isAdmin,(req,res,next)=> {
 
 app.post('/editAnEmployee' ,authenticate,isAdmin ,(req,res,next)=> {
    var details=req.body
-   var url=`${process.env.APIENDPOINT}/user/employee`
+   var url=`${APIENDPOINT}/user/employee`
    request.post({
        headers: {'content-type' : 'application/json'},
        url : url,
@@ -279,7 +279,7 @@ app.post('/editAnEmployee' ,authenticate,isAdmin ,(req,res,next)=> {
 app.post('/addToDo' ,authenticate,isAdmin, (req,res,next)=> {
    var onboardDetails=req.body
 
-   var url=`${process.env.APIENDPOINT}/onboarding/task/designation`
+   var url=`${APIENDPOINT}/onboarding/task/designation`
    request.post({
        headers: {'content-type' : 'application/json'},
        url : url,
@@ -307,7 +307,7 @@ app.post('/addToDo' ,authenticate,isAdmin, (req,res,next)=> {
 app.post('/addToDoforAll' , authenticate,isAdmin,(req,res,next)=> {
    var onboardDetails=req.body
 
-   var url=`${process.env.APIENDPOINT}/onboarding/task/forAll`
+   var url=`${APIENDPOINT}/onboarding/task/forAll`
    request.post({
        headers: {'content-type' : 'application/json'},
        url : url,
@@ -334,7 +334,7 @@ app.post('/addToDoforAll' , authenticate,isAdmin,(req,res,next)=> {
 
 //make a course
 app.get('/adminGetCourses', authenticate, isAdmin,(req,res,next)=> {
-   var url=`${process.env.APIENDPOINT}/course/courses/all`
+   var url=`${APIENDPOINT}/course/courses/all`
    request.get({
        url : url
    },(err,response,body)=> {
@@ -359,7 +359,7 @@ app.get('/adminGetCourses', authenticate, isAdmin,(req,res,next)=> {
 app.post('/adminAddCourse' ,authenticate, isAdmin,(req,res,next)=> {
    var courseDetails=req.body
 
-   var url=`${process.env.APIENDPOINT}/course/add/course`
+   var url=`${APIENDPOINT}/course/add/course`
    request.post({
        headers: {'content-type' : 'application/json'},
        url : url,
@@ -386,7 +386,7 @@ app.post('/adminAddCourse' ,authenticate, isAdmin,(req,res,next)=> {
 //add a new course for a designation
 app.post('/adminCourseDesignation' ,authenticate,isAdmin, (req,res,next)=> {
    var courseDetaills=req.body
-   var url=`${process.env.APIENDPOINT}/course/designation/course`
+   var url=`${APIENDPOINT}/course/designation/course`
    request.post({
        headers: {'content-type' : 'application/json'},
        url : url,
@@ -413,7 +413,7 @@ app.post('/adminCourseDesignation' ,authenticate,isAdmin, (req,res,next)=> {
 
 app.post('/adminCourseforAll' ,authenticate,isAdmin, (req,res,next)=> {
     var courseDetaills=req.body
-    var url=`${process.env.APIENDPOINT}/course/forall/course`
+    var url=`${APIENDPOINT}/course/forall/course`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -440,7 +440,7 @@ app.post('/adminCourseforAll' ,authenticate,isAdmin, (req,res,next)=> {
 
 app.post('/adminEditCourse', authenticate,isAdmin, (req,res,next)=> {
     var courseDetails=req.body
-    var url=`${process.env.APIENDPOINT}/course/edit/existCourse`
+    var url=`${APIENDPOINT}/course/edit/existCourse`
     request.post({
         headers: {'content-type' : 'application/json'},
         url : url,
@@ -468,7 +468,7 @@ app.post('/adminEditCourse', authenticate,isAdmin, (req,res,next)=> {
 
 
 async function getRequestToEmployee(empId){
-    var url=`${process.env.APIENDPOINT}/user/${empId}`
+    var url=`${APIENDPOINT}/user/${empId}`
     return new Promise(function(resolve,reject){
         request.get({
             url : url
@@ -496,7 +496,7 @@ async function getRequestToEmployee(empId){
 }
 
 async function getRequestToonBoarding(empId){
-    var url=`${process.env.APIENDPOINT}/onboarding/${empId}`
+    var url=`${APIENDPOINT}/onboarding/${empId}`
     return new Promise(function(resolve,reject){
         request.get({
             url : url
@@ -523,11 +523,11 @@ async function getRequestToonBoarding(empId){
     })
 }
 
-app.listen(process.env.PORT_SERVICE_EMPLOYEE || 7901, ()=> {
-    console.log(`Employee service started on ${process.env.PORT_SERVICE_EMPLOYEE}`)
+app.listen(PORT_SERVICE_EMPLOYEE || 7901, ()=> {
+    console.log(`Employee service started on ${PORT_SERVICE_EMPLOYEE}`)
 })
 
-// console.log(process.env.APIENDPOINT)
+// console.log(APIENDPOINT)
 
 
 module.exports=app

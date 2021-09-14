@@ -1,4 +1,4 @@
-const app=require('./admin.service')
+const app=require('./employee.service')
 const mongoose=require('mongoose')
 const supertest=require('supertest')
 const User=require('../models/user.model')
@@ -6,6 +6,94 @@ const onBoard=require('../models/onboarding.model')
 const Course=require('../models/course.model')
 
 
+let empuser={
+    firstName : 'Ayush',
+    lastName : 'Sonthalia',
+    empId : 'EMP002',
+    courseID : [
+        {
+            id : 'JAVA',
+            amountCompleted : 0
+        },
+        {
+            id : 'C++',
+            amountCompleted : 0
+        },
+        {
+            id : 'C',
+            amountCompleted : 0
+        }
+    ],
+    address : 'Bangalore',
+    dob : '04-05-1999',
+    designation : 'Software',
+    email : 'agrim112551981@gmail.com',
+    googleId : '1234',
+    role : 0
+}
+
+let updateCourses={
+    "steps":[
+        {
+            "id":"JAVA",
+            "amountCompleted":20
+        },
+        {
+            "id":"C",
+            "amountCompleted":10
+        }
+    ]
+}
+
+let updateTasks={
+    "tasks": [
+        {
+            "id": "SUBMIT PAN",
+        }
+    ]
+}
+
+let userTemp={
+    firstName : 'Ramu',
+    lastName : 'Sharma',
+    empId : 'EMP004',
+    courseID : [
+        {
+            id : 'JAVA',
+            amountCompleted : 0
+        },
+        {
+            id : 'C++',
+            amountCompleted : 0
+        },
+        {
+            id : 'C',
+            amountCompleted : 0
+        }
+    ],
+    address : 'Gujarat',
+    dob : '04-07-1999',
+    designation : 'Associate',
+    email : 'rsharma@gmail.com',
+    googleId : '1234564',
+    role : 0
+}
+
+let onboardUser={
+    empId : "EMP002",
+    designation_id : "S",
+
+    designation : "Software",
+
+    steps : [
+        {
+       id : "SUBMIT PAN",
+       isCompleted : false
+    }, {
+        id : 'Laptop',
+        isCompleted : false
+    }]
+}
 
 
 let user={
@@ -18,6 +106,18 @@ let user={
     email : 'agrimkh54321@gmail.com',
     googleId : '1234',
     role : 1
+}
+
+let notAdminUser={
+    firstName : 'Agrim',
+    lastName : 'Khurana',
+    empId : 'EMP001',
+    address : 'Indore',
+    dob : '04-05-1999',
+    designation : 'Manager',
+    email : 'agrimkh54321@gmail.com',
+    googleId : '1234',
+    role : 0
 }
 
 let users=[
@@ -198,9 +298,7 @@ let courses = [
 beforeEach((done) => {
     mongoose.connect("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false",
       { useNewUrlParser: true, useUnifiedTopology: true }, ()=> {
-        User.insertMany({...user},()=> {
-            done()
-          })
+          done()
       })
 
     
@@ -218,13 +316,113 @@ beforeEach((done) => {
 
 
 
- let token='eyJhbGciOiJIUzI1NiJ9.YWdyaW1raDU0MzIxQGdtYWlsLmNvbQ.lA8bDKiqXAoMIlSam7dQBqwVfYtVfhoD1o5MALiBVbA'
+ let token1='eyJhbGciOiJIUzI1NiJ9.YWdyaW1raDU0MzIxQGdtYWlsLmNvbQ.lA8bDKiqXAoMIlSam7dQBqwVfYtVfhoD1o5MALiBVbA'
+ let token2='eyJhbGciOiJIUzI1NiJ9.YWdyaW0xMTI1NTE5ODFAZ21haWwuY29t.fCyHjjdxIAD0mlBCK6nsQTJaiwIQeQOFVhKt8up9ouw'
+
+ test('Get Employee Dashboard' , async ()=> {
+     await User.create({...empuser}).then(async ()=> {
+       await onBoard.create({...onboardUser}).then(async ()=> {
+           await supertest(app).get(`/empDashboard/${empuser.empId}`)
+           .set('Authorization',"Bearer "+token2)
+           .expect(200)
+           .then((response)=> {
+             //   console.log(response.body)
+               expect(response.body.emp.courseEmp.firstName).toBe('Ayush')
+               expect(response.body.emp.courseEmp.lastName).toBe('Sonthalia')
+               expect(response.body.emp.courseEmp.empId).toBe('EMP002')
+               expect(response.body.emp.courseEmp.role).toBe(0)
+       })
+     })
+    
+    
+     })
+ })
+
+ test('POST Update Employee Course' , async ()=> {
+     await User.create({...empuser}).then(async ()=> {
+       await supertest(app).post('/empUpdateCourses')
+       .set('Authorization',"Bearer "+token2)
+       .expect(200)
+       .send(updateCourses)
+       .then(async (response)=> {
+           expect(response.body.message).toBe('added successfully')
+           const courseEmp=await User.findOne({empId : empuser.empId})
+       expect(courseEmp.courseID[0].amountCompleted).toBe(20)
+       expect(courseEmp.courseID[2].amountCompleted).toBe(10)
+     })
+     
+     
+     })
+
+     
+
+ })
+
+
+ test('POST Update Employee tasks' , async ()=> {
+    await User.create({...empuser}).then(async ()=> {
+       await onBoard.create({...onboardUser}).then(async ()=> {
+           await supertest(app).post('/empUpdateToDo')
+           .set('Authorization',"Bearer "+token2)
+           .send(updateTasks)
+           .expect(200)
+           .then(async (response)=> {
+               expect(response.body.message).toBe('added successfully')
+               const onboardusertemp= await onBoard.findOne({empId : empuser.empId})
+         //  console.log(onboardusertemp)
+          expect(onboardusertemp.steps[0].isCompleted).toBeTruthy()
+       })
+    })
+
+    
+
+     })
+
+ })
+
+ 
+ test('GET Employee Dashboard with no EMPID in database', async ()=> {
+
+   await supertest(app).get('/empDashboard/EMP008')
+   .set('Authorization',"Bearer "+token2)
+   .expect(401)
+ })
+
+ test('GET Employee Dashboard with EMPID in User but not in Onboard', async ()=>{
+     User.create({...userTemp})
+
+     await supertest(app).get('/empDashboard/EMP004')
+     .set('Authorization',"Bearer "+token2)
+     .expect(401)
+     
+ })
+
+ test('GET all users without token' , async ()=> {
+    await User.create({...user})
+     await supertest(app).get('/adminDashboardEmployee')
+     .expect(401)
+     .then((response)=> {
+         expect(response.body.message).toBe('Unauthorized Access - No Token Provided!')
+     })
+ })
+
+ test('GET all users with token1 but is not an admin', async ()=> {
+     await User.create({...notAdminUser})
+         await supertest(app).get('/adminDashboardEmployee')
+         .set('Authorization',"Bearer "+token1)
+         .expect(403)
+         .then((response)=> {
+             expect(response.body.message).toBe('Unauthorized Access - Not an Admin!')
+         })
+        })
+
 
   test('GET All Users for Admin' , async ()=> {
+    await User.create({...user})
       await User.insertMany(users)
 
       await supertest(app).get('/adminDashboardEmployee')
-      .set('Authorization',"Bearer "+token)
+      .set('Authorization',"Bearer "+token1)
       .expect(200)
       .then((response)=> {
         //   console.log(response.body.finalOutput.courseUsers)
@@ -237,9 +435,10 @@ beforeEach((done) => {
 
 
   test('POST Add an employee' , async ()=> {
+    await User.create({...user})
       const tempUser=users[0]
       await supertest(app).post('/adminAddEmployee')
-      .set('Authorization',"Bearer "+token)
+      .set('Authorization',"Bearer "+token1)
       .set('Accept', 'application/json')
       .send(tempUser)
       .expect(200)
@@ -260,6 +459,7 @@ beforeEach((done) => {
   })
 
   test('POST update an employee' , async ()=> {
+    await User.create({...user})
     await User.create({...users[0]})
     await onBoard.create({
         designation : 'SOFTWARE',
@@ -267,15 +467,13 @@ beforeEach((done) => {
         empId : 'EMP002'
     })
       await supertest(app).post('/editAnEmployee')
-      .set('Authorization',"Bearer "+token)
+      .set('Authorization',"Bearer "+token1)
       .send(updateUser)
       .expect(200)
       .then(async (response)=> {
-          expect(response.body.message).toBe('edited successfully')
+          expect(response.body.message).toBe('added successfully')
            await User.findOne({empId : 'EMP002'}).then((output)=> {
             expect(output.lastName).toBe('Sharma')
-            expect(output.courseID.length).toBe(4)
-            expect(output.courseID[3].id).toBe('EXCEL')
           })
         //   console.log(output)
           
@@ -292,6 +490,7 @@ beforeEach((done) => {
 
 
   test('POST add onboarding task', async ()=> {
+    await User.create({...user})
       await onBoard.create({
           designation : 'Software',
           empId : 'EMP002',
@@ -300,7 +499,7 @@ beforeEach((done) => {
 
       await supertest(app).post('/addToDo')
       .send(onBoardTask)
-      .set('Authorization',"Bearer "+token)
+      .set('Authorization',"Bearer "+token1)
       .expect(200)
       .then(async (response)=> {
           expect(response.body.message).toBe('added successfully')
@@ -313,6 +512,7 @@ beforeEach((done) => {
 
 
   test('POST onboarding task for all' , async ()=> {
+    await User.create({...user})
       await onBoard.insertMany([
           {
             designation : 'Software',
@@ -326,7 +526,7 @@ beforeEach((done) => {
       ])
 
       await supertest(app).post('/addToDoforAll')
-      .set('Authorization',"Bearer "+token)
+      .set('Authorization',"Bearer "+token1)
       .send(taskforAll)
       .expect(200)
       .then(async (response)=> {
@@ -343,9 +543,9 @@ beforeEach((done) => {
 
 
   test('POST add course' , async ()=> {
-
+    await User.create({...user})
     await supertest(app).post('/adminAddCourse')
-    .set('Authorization',"Bearer "+token)
+    .set('Authorization',"Bearer "+token1)
     .send(courseAll)
     .expect(200)
     .then(async (response)=> {
@@ -365,11 +565,12 @@ beforeEach((done) => {
 
 
   test('POST add course for designation' , async ()=> {
+    await User.create({...user})
       await User.create({...users[0]})
       await User.create({...users[1]})
 
       await supertest(app).post('/adminCourseDesignation')
-      .set('Authorization',"Bearer "+token)
+      .set('Authorization',"Bearer "+token1)
       .send(courseDesignation)
       .expect(200)
       .then(async (response)=> {
@@ -382,10 +583,11 @@ beforeEach((done) => {
 
 
   test('GET all courses for admin', async ()=> {
+    await User.create({...user})
       await Course.insertMany(courses).then(async (result)=> {
         //   console.log(result)
           await supertest(app).get('/adminGetCourses')
-          .set('Authorization',"Bearer "+token)
+          .set('Authorization',"Bearer "+token1)
           .expect(200)
           .then((response)=> {
               expect(response.body.allCourses.length).toBe(6)

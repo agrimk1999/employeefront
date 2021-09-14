@@ -23,7 +23,7 @@ const isAdmin = (req,res,next)=> {
     console.log('Admin',req.user)
     if(req.user.role==0)
     {
-       res.status(403).send({
+       return res.status(403).send({
            message: 'Unauthorized Access - Not an Admin!'
        })
     }
