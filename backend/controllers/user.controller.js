@@ -1,10 +1,11 @@
 var router = require('express').Router()
 var UserSchema=require('../models/user.model')
 const onboardSchema=require('../models/onboarding.model')
+const request=require('request')
 
 router.get('/:empId' ,  (req,res,next)=> {
     var empId=req.params['empId']
-
+    console.log(empId)
     UserSchema.findOne({empId : empId} , (err,result)=> {
         if(err){
             console.log('error in finding user' , err)
@@ -12,6 +13,7 @@ router.get('/:empId' ,  (req,res,next)=> {
         }
         if(!result)
         {
+            console.log('user controller',result)
             res.sendStatus(403)
         }else{
             res.send({'emp' : result})
@@ -35,7 +37,7 @@ router.get('/all/employees' , (req,res,next)=> {
     })
 })
 
-router.post('/employee' , (req,res,next)=> {
+router.post('/employee' , async (req,res,next)=> {
     //update user details 
     var empDetails=req.body
     var courses=empDetails.courseID
@@ -45,26 +47,29 @@ router.post('/employee' , (req,res,next)=> {
     //     return JSON.parse(element)
     // });
     // console.log(courses)
-    UserSchema.findOneAndUpdate({empId : empDetails.empId} , {
+   const user=await UserSchema.findOneAndUpdate({empId : empDetails.empId} , {
        $set : {
-           firstName : empDetails.firstName,
-           lastName : empDetails.lastName,
-           designation : empDetails.designation,
-           address : empDetails.address,
-           email : empDetails.email
+           ...empDetails
        },
-       $push : {
-        courseID : courses
-    }
-    }, {new : true,upsert : true},(error,result)=> {
-        if(error){
-            console.log('error in updating or adding',error)
-            res.sendStatus(404)
-        }else{
-            console.log(result)
-            res.sendStatus(200)
-        }
-    })
+    }, {upsert : true})
+
+    req.body.designation_id=empDetails.designation.substring(0,1)
+    
+        
+            request.post({
+                headers : {'content-type' : 'application/json'},
+                url : `http://localhost:8080/onboarding/add/employee`,
+                body : JSON.stringify(req.body)
+            },(error,response,body)=> {
+                if(error)
+                {
+                    res.sendStatus(404)
+                }else{
+                    // console.log(response)
+                    res.sendStatus(200)
+                }
+            })
+
 })
 
 module.exports=router

@@ -8,7 +8,10 @@ const UserSchema=mongoose.Schema({
 //amountCompleted is calculated on the basis of weeks completed
     courseID : [{
         id : {
-            type : String
+            type : String,
+            trim : true,
+            uppercase : true,
+            unique: true
         },
         amountCompleted : {
             type : Number,
@@ -20,33 +23,38 @@ const UserSchema=mongoose.Schema({
         default : 0
     },
     empId : {
-        type : String
+        type : String,
+        unique : true,
+        trim : true,
+        uppercase: true
     },
     firstName:{
             type : String,
-            required : true
+            required : true,
+            trim: true
         },
         lastName : {
             type : String,
-            required : true
+            required : true,
+            trim : true
         },
         dob : {
             type : Date
         },
         email  :{
             type : String,
-            required : true
-        },
-        googleId: {
-            type : String
+            required : true,
+            trim : true
         },
         address : {
             type : String,
-            required : true
+            trim : true
         },
         designation : {
             type : String,
-            required : true
+            required : true,
+            uppercase : true,
+            trim : true
         },
         profilePhoto:{
            type : String

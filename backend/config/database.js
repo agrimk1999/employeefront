@@ -11,7 +11,7 @@ mongoose.connect('mongodb+srv://admin:admin@employeeonboarding.8cpnr.mongodb.net
         useFindAndModify: false
 })
 }else{
-    mongoose.connect('mongodb+srv://admin:admin@employeeonboarding.8cpnr.mongodb.net/JestDB?retryWrites=true&w=majority', {
+    mongoose.connect('mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false', {
     useCreateIndex: true,
         useNewUrlParser: true,
         useUnifiedTopology: true,

@@ -13,20 +13,41 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
+    "express-jwt": "^6.1.0",
     "express-session": "^1.17.2",
     "formidable": "^1.2.2",
     "jade": "^1.11.0",
     "jest": "^27.1.0",
+    "jest-sonar-reporter": "^2.0.0",
+    "jsonwebtoken": "^8.5.1",
     "localStorage": "^1.0.4",
     "mongoose": "^5.13.7",
     "passport": "^0.4.0",
     "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.0",
     "request": "^2.88.2",
-    "supertest": "^6.1.6"
+    "sonarqube-scanner": "^2.8.1",
+    "superagent-defaults": "^0.1.14",
+    "supertest": "^6.1.6",
+    "swagger-jsdoc": "^6.1.0",
+    "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {},
   "scripts": {
+    "sonar": "node sonar-project.js",
     "test": "jest --coverage"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testResultsProcessor": "jest-sonar-reporter"
+  },
+  "jestSonar": {
+    "reportPath": "coverage",
+    "reportFile": "test-reporter.xml",
+    "indent": 4
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,825 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Employee Onboarding",
+    "description": "This is an employee onboarding application developed by our team members",
+    "contact": {
+      "email": "agrimkh54321@gmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:7901"
+    },
+    {
+      "url": "http://localhost:7902"
+    }
+  ],
+  "apis" : [
+    "./microservices/*.service.js"
+
+  ],
+  "tags": [
+    {
+      "name": "Employee Service",
+      "description": "Everything about the employee based on his/her employee id and updating his courses and tasks"
+    },
+    {
+      "name": "Admin Service",
+      "description": "This helps perform all the administrative functionalities"
+    }
+  ],
+  "paths": {
+    "/empDashboard/{empId}": {
+      "get": {
+        "tags": [
+          "Employee Service"
+        ],
+        "summary": "Employee to see his/her details",
+        "operationId": "empDashboard",
+        "parameters": [
+        {
+          "name" : "empId",
+          "in": "path",
+          "description": "The empId that needs to be fetched for the employee",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+
+        }
+      ],
+        "responses": {
+          "200": {
+            "description": "Succefull fetch",
+            "content": {
+              "application/json":{
+                "schema": {
+                  "$ref": "#/components/schemas/Employee"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid user supplied",
+            "content":{
+              "application/json": {
+                "schema": {
+                  "type":"string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database Error",
+            "content":{
+              "application/json": {
+                "schema": {
+                  "type":"string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+           "jwt" : []
+          }
+        ]
+       
+      }
+    },
+    "/empUpdateCourses": {
+      "post": {
+        "tags": [
+          "Employee Service"
+        ],
+        "summary": "Update the course completion by the employee",
+        "operationId": "updateCourses",
+        "requestBody": {
+          "description": "Course amount completed by the employee and course name",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/courseUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Unable to update contents",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "200": {
+            "description": "Successfully updated",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/empUpdateToDo": {
+      "post": {
+        "tags": [
+          "Employee Service"
+        ],
+        "summary": "Update the task completion by the employee",
+        "operationId": "updateTasks",
+        "requestBody": {
+          "description": "Task Name that has been completed",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/updateTask"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Unable to update contents",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "200": {
+            "description": "Successfully updated",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/adminDashboardEmployee": {
+      "get": {
+        "tags": [
+          "Admin Service"
+        ],
+        "summary": "Admin to see all the employees",
+        "operationId": "adminDashboard",
+        "responses": {
+          "200": {
+            "description": "Succefull fetch",
+            "content": {
+              "application/json":{
+                "schema": {
+                  "$ref": "#/components/schemas/Admin"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid user supplied",
+            "content":{
+              "application/json": {
+                "schema": {
+                  "type":"string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database Error",
+            "content":{
+              "application/json": {
+                "schema": {
+                  "type":"string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+           "jwt" : []
+          }
+        ]
+      }
+    },
+    "/adminAddEmployee": {
+      "post": {
+        "tags": [
+          "Admin Service"
+        ],
+        "summary": "Admin can add a new employee",
+        "operationId": "addEmployee",
+        "requestBody": {
+          "description": "Employee Details-empId,firstname,lastname,email,address,dateofbirth",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/user"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Unable to add an employee",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "200": {
+            "description": "Successfully added",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/editAnEmployee": {
+      "post": {
+        "tags": [
+          "Admin Service"
+        ],
+        "summary": "Admin can edit an existing employee",
+        "operationId": "editEmployee",
+        "requestBody": {
+          "description": "Employee Details to be updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/user"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Unable to add an employee",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "200": {
+            "description": "Successfully added",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/addToDo": {
+      "post": {
+        "tags": [
+          "Admin Service"
+        ],
+        "summary": "Admin can assign tasks to a designation",
+        "operationId": "addTask",
+        "requestBody": {
+          "description": "Designation and tasks to do",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/taskDesignation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Unable to add an employee",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "200": {
+            "description": "Successfully added",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/addToDoforAll": {
+      "post": {
+        "tags": [
+          "Admin Service"
+        ],
+        "summary": "Admin can assign mandatory tasks that is to all designation",
+        "operationId": "addTaskforAll",
+        "requestBody": {
+          "description": "Tasks to do",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/updateTask"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Unable to add an employee",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "200": {
+            "description": "Successfully added",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/adminGetCourses": {
+      "get": {
+        "tags": [
+          "Admin Service"
+        ],
+        "summary": "Admin to see all the courses available",
+        "operationId": "adminCourses",
+        "responses": {
+          "200": {
+            "description": "Succesfull fetch",
+            "content": {
+              "application/json":{
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "allCourses": {
+                      "type":"array",
+                      "items": {
+                        "$ref":"#/components/schemas/courseSchema"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid user supplied",
+            "content":{
+              "application/json": {
+                "schema": {
+                  "type":"string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database Error",
+            "content":{
+              "application/json": {
+                "schema": {
+                  "type":"string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+           "jwt" : []
+          }
+        ]
+      }
+    },
+    "/adminAddCourse": {
+      "post": {
+        "tags": [
+          "Admin Service"
+        ],
+        "summary": "Admin can add a new course",
+        "operationId": "addCourse",
+        "requestBody": {
+          "description": "Course Details",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/courseSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Unable to add an employee",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "200": {
+            "description": "Successfully added",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    },
+    "/adminCourseDesignation": {
+      "post": {
+        "tags": [
+          "Admin Service"
+        ],
+        "summary": "Admin can assign courses to employees based on designation",
+        "operationId": "addCourseDesignation",
+        "requestBody": {
+          "description": "Course Names and Designation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type":"object",
+                "properties": {
+                  "designation": {
+                    "type":"string"
+                  },
+                  "courses": {
+                    "type":"array",
+                    "items": {
+                      "$ref":"#/components/schemas/courseIDSchema"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Unable to add an employee",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "200": {
+            "description": "Successfully added",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised Access Denied",
+            "content": {
+              "schema": {
+                "type":"string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    }
+
+  },
+  "components": {
+    "schemas": {
+      "Admin": {
+        "type": "object",
+        "properties": {
+          "courseUsers": {
+            "type": "array",
+            "items": {
+              "$ref":"#/components/schemas/user"
+            }
+          },
+          "taskUsers": {
+            "type":"array",
+            "items": {
+              "$ref":"#/components/schemas/onboard"
+            }
+          }
+        }
+      },
+      "Employee": {
+        "type": "object",
+        "properties": {
+          "emp": {
+           "type" : "object",
+           "$ref" : "#/components/schemas/onboard"
+          },
+          "courseEmp": {
+            "type" : "object",
+            "$ref" : "#/components/schemas/user"
+          }
+        }
+      },
+      "onboard": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type" : "string"
+          },
+          "empId": {
+            "type" : "string"
+          },
+          "designation_id" : {
+            "type": "string"
+          },
+          "designation": {
+            "type" : "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+             "$ref": "#/components/schemas/taskSchema"
+            }
+
+          }
+        }
+      },
+
+      "user":{
+        "type":"object",
+        "properties": {
+          "role": {
+            "type": "integer"
+          },
+          "_id": {
+            "type": "string"
+          },
+          "empId": {
+            "type":"string"
+          },
+          "email":{
+            "type":"string"
+          },
+          "courseID": {
+            "type":"array",
+            "items": {
+              "$ref":"#/components/schemas/courseIDSchema"
+            }
+          },
+          "address": {
+            "type": "string"
+          },
+          "designation": {
+            "type":"string"
+          },
+          "firstName":{
+            "type":"string"
+          },
+          "lastName":{
+            "type":"string"
+          },
+          "dob":{
+            "type":"string"
+          }
+        }
+      },
+      "courseUpdate": {
+        "type": "object",
+        "properties":{
+          "steps":{
+            "type":"array",
+            "items": {
+              "$ref":"#/components/schemas/courseIDSchema"
+             }
+          }
+        }
+        }
+      ,
+      "updateTask": {
+        "type":"object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": {
+             
+             "$ref": "#/components/schemas/taskSchema"
+              
+            }
+          }
+        }
+      },
+      "taskDesignation": {
+        "type":"object",
+        "properties": {
+          "designation": {
+            "type":"string"
+          },
+          "tasks": {
+            "type":"array",
+            "items":{
+              "$ref":"#/components/schemas/taskSchema"
+            }
+          }
+        }
+
+      },
+      "taskSchema": {
+        "type":"object",
+        "properties":{
+          "id": {
+            "type": "string"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "courseIDSchema": {
+        "type":"object",
+        "properties":{
+          "id" : {
+            "type":"string"
+          },
+          "amountCompleted": {
+            "type":"integer",
+            "maximum":100
+          }
+        }
+      },
+      "courseSchema": {
+        "type":"object",
+        "properties":{
+          "courseID": {
+            "type": "string"
+          },
+          "courseName": {
+            "type":"string"
+
+          },
+          "summary": {
+            "type":"string"
+          },
+          "weightage": {
+            "type":"integer",
+            "maximum":100
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "jwt": {
+        "type": "http",
+        "scheme" : "bearer",
+        "in" : "header",
+        "bearerFormat" : "JWT"
+      }
+    }
+  }
+}

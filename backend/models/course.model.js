@@ -8,12 +8,14 @@ const courseSchema=mongoose.Schema({
     }, 
     courseName : {
         type : String,
+        required: true,
+        trim : true,
+        uppercase : true
         
     },
 
     summary : {
         type : String,
-        required :true
     },
 
     courseImage : {

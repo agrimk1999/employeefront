@@ -13,6 +13,7 @@ router.get('/:empId' , async (req,res,next)=> {
         }else{
             if(!result)
             {
+                console.log('onboarding',result)
                 res.sendStatus(403)
             }else{
                 res.send({'tasks' : result})
@@ -22,19 +23,27 @@ router.get('/:empId' , async (req,res,next)=> {
 
 })
 
+router.get('/all/userOnboarding', async (req,res,next)=> {
+    await onboardSchema.find({}).then((result)=> {
+        res.send({'alltasks' : result})
+    }).catch((err)=> {
+        res.sendStatus(404)
+    })
+})
 
 router.post('/:empId' , (req,res,next)=> {
     var empId=req.params['empId']
     var details=req.body.details
 
-    console.log(empId,details[0])
+    console.log(empId,details)
     //we get here the tasks for the user
     // for loop for all employees
     // for loop for all designated employees
    const promises=details.map(async (det)=> {
        return await  onboardSchema.updateOne({
         empId : empId,
-        "steps.id" : det.task
+        "steps.id" : det.id
+        
     } , {
         $set : {
             "steps.$.isCompleted" : true
@@ -48,6 +57,26 @@ router.post('/:empId' , (req,res,next)=> {
     }).catch((err)=> {
         console.log('error in marking to do true',err)
         res.sendStatus(404)
+    })
+})
+
+router.post('/add/employee' , async (req,res,next)=> {
+    var output=req.body
+    console.log('onboarding',output)
+    await onboardSchema.findOneAndUpdate({empId : output.empId},
+        {
+            $set : {
+                designation : output.designation,
+                designation_id : output.designation_id,
+
+            }
+        }, {upsert : true}
+        
+        ).then((result)=> {
+            res.sendStatus(200)
+
+    }).catch((error)=> {
+        res.send(new Error('Cant add into onboarding'))
     })
 })
 

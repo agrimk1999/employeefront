@@ -49,15 +49,15 @@ router.get('/:empId' , (req,res,next)=> {
 router.post('/update' , async (req,res,next)=> {
     var empId=req.body.empId
     var details=req.body.details
-    var courseName=details[0].name
+    var courseName=details[0].id
     var amount=details[0].amountCompleted
     //update employee information
-    console.log(empId,details[0])
+    console.log(empId,details)
     console.log(courseName,amount)
    const promises=details.map(async (det)=> {
     return await UserSchema.updateOne({
         empId : empId,
-        "courseID.id" : det.name
+        "courseID.id" : det.id
     },{
         $set : {
             "courseID.$.amountCompleted" : det.amountCompleted
@@ -75,9 +75,19 @@ router.post('/update' , async (req,res,next)=> {
    })
 })
 
+router.get('/courses/all' , async (req,res,next)=> {
+    await courseSchema.find({}).then((result)=> {
+        res.send({'courses' : result})
+    }).catch((err)=> {
+        console.log('Error in retreiving all courses',err)
+        res.sendStatus(404)
+    })
+    
+})
+
 router.post('/add/course' , async (req,res,next)=> {
     var courseDetails=req.body
-    // console.log(courseDetails)
+    console.log('in course controllers',courseDetails)
     await courseSchema.insertMany(courseDetails)
     .then((result)=> {
         console.log(result)
@@ -93,7 +103,7 @@ router.post('/add/course' , async (req,res,next)=> {
 router.post('/designation/course' , async (req,res,next)=> {
     var desgnation=req.body.designation
     var courses = req.body.courses
-
+    console.log('course controller',desgnation,courses)
     await UserSchema.updateMany({designation : desgnation} , {
         $push : {
             courseID : courses
@@ -108,7 +118,43 @@ router.post('/designation/course' , async (req,res,next)=> {
     })
 })
 
+router.post('/forall/course', async (req,res,next)=> {
+    var courses = req.body.courses
+    console.log('course controller',desgnation,courses)
+    await UserSchema.updateMany({} , {
+        $push : {
+            courseID : courses
+        }
+    }, {new : true , upsert: true})
+    .then((result)=> {
+        console.log(result)
+        res.sendStatus(200)
+    }).catch((err)=> {
+        console.log('error in adding course for designation',err)
+        res.sendStatus(404)
+    })
+})
 
+router.post('/edit/existCourse',async (req,res,next)=> {
+    var course=req.body.course
+    console.log(course)
+    await courseSchema.findOneAndUpdate({courseName : course.courseName},{
+        $set :{
+            ...course
+        }
+    }).then((result)=> {
+        console.log(result)
+        if(!result)
+        {
+            res.sendStatus(403)
+        }else{
+            res.sendStatus(200)
+        }
+    }).catch((err)=> {
+        console.log('error in edit course',err)
+        res.sendStatus(404)
+    })
+})
 
 
 module.exports=router
