@@ -6,6 +6,7 @@ module.exports = {
     PORT:8080,
     PORT_SERVICE_EMPLOYEE:7901,
     PORT_SERVICE_ADMIN:7902,
+    DBCASE:'PRODUCTION',
     APIENDPOINT:"http://localhost:8080",
     session: {
         cookieKey: 'tryingtodooauthihopeitworks'
