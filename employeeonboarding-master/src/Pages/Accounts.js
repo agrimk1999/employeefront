@@ -48,7 +48,7 @@ import {
         }}
       >
         <Container maxWidth="lg">
-        <h2> Telstra On-Boarding Page </h2>
+        <h1>EMPLOYEE ONBOARDING</h1>
           <Grid
             container
             spacing={3}
@@ -72,7 +72,7 @@ import {
           </Grid>
         </Container>
         <Container className="progress">
-        <h2> On-Boarding Progress </h2>
+        <h1> ONBOARDING PROGRESS </h1>
               <h3 style={{"color": "red"}}>
               Due Date: {getDate(new Date(new Date(details?.courseEmp.doj).getTime() + 86400000 * 15))}
               </h3>
@@ -82,7 +82,7 @@ import {
           <ToDoList tasks={details?.tasks.steps} setisdetails={setisdetails}/>
         </Container>
         <Container>
-        <h2> Assigned Courses </h2>
+        <h1>ASSIGNED COURSES </h1>
           <Slideshow courses={details?.courseEmp.courseID} setisdetails={setisdetails} isdetails={isdetails}  />
         </Container>
         {/* <Container>

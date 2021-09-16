@@ -123,7 +123,7 @@ useEffect(()=>{
     <div className="toDo123">
     {message!==''?<Alert message={message} severity={severity} isClicked={openHandle}></Alert>:null}
     <Card >
-      <h1>To Do Tasks</h1>
+      <h1>ONBOARDING TASKS</h1>
       <FormControl component="fieldset" variant="standard">
         <FormGroup>
             {

@@ -87,7 +87,7 @@ const AddNewToDo = (props) => {
       setSeverity('error')
       setOpenHandle(true)
     }
-    window.location.reload()
+    // window.location.reload()
     
   })}
   else{

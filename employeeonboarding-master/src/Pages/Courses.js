@@ -247,7 +247,7 @@ function Courses() {
                 <th>COURSE NAME</th>
                 <th>WEIGHTAGE</th>
                 <th>SUMMARY</th>
-                <th>EDIT</th>
+                <th></th>
               </tr>
             </table>
             </Card>
