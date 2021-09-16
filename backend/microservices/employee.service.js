@@ -18,7 +18,7 @@ const doc=require('../openapi.json')
 
 var app=express()
 
-const {PORT,PORT_SERVICE_EMPLOYEE,APIENDPOINT}=require('../config/keys')
+const {DBCASE,PORT_SERVICE_EMPLOYEE,APIENDPOINT}=require('../config/keys')
 
 app.use(express.static(path.join(__dirname,'/public')))
 app.use(express.json());
@@ -39,14 +39,17 @@ app.set('view engine' , 'jade')
 const UserSchema = require('../models/user.model')
 
 
-
+if(DBCASE==='PRODUCTION')
+{
 app.use('/googlelogin' , require('./services/auth'))
+}
 
 app.use('/api-docs/employee',swaggerUI.serve,swaggerUI.setup(doc))
 
 app.get('/userLogout',authenticate,(req, res) => {
     res.clearCookie('jwtGoogleToken')
     req.logout()
+    res.send('Logged Out')
 });
 
 
@@ -54,24 +57,17 @@ app.get('/userLogout',authenticate,(req, res) => {
 app.get('/empDashboard/:empId' ,authenticate, (req,res,next)=> {
     console.log('dashboard user',req.user)
     var empId=req.params['empId']
-    // console.log('empID' , empId)
-    // localStorage.setItem('empId' , empId)
     var output = {
         "tasks" : {},
         "courseEmp" : {}
     }
     getRequestToEmployee(empId).then((result)=> {
-        // console.log('Promise',result)
         output.courseEmp=result
         getRequestToonBoarding(empId).then((data)=> {
-            // console.log('Prromise 2' , data)
             output.tasks={...data}
-            // console.log(output)
-            // res.render('empDashboard' , {'emp' : output})
             res.send({'emp' : output})
             console.log(output)
         }).catch((err)=> {
-            // console.log('Promise 2', err.message)
             if(err.message=='Error Message : 403')
         {
             res.status(403).send({
@@ -84,7 +80,6 @@ app.get('/empDashboard/:empId' ,authenticate, (req,res,next)=> {
         }
         })
         }).catch((err)=> {
-        // console.log('Promise',err.message)
         if(err.message=='Error Message : 403')
         {
             res.status(403).send({
@@ -103,7 +98,6 @@ app.get('/empDashboard/:empId' ,authenticate, (req,res,next)=> {
 
 
 app.post('/empUpdateCourses',authenticate,(req,res,next)=> {
-    // var empId=localStorage.getItem('empId')
     var empId=req.user.empId
     var checkedSteps=req.body.steps
     var obj={
@@ -116,13 +110,6 @@ app.post('/empUpdateCourses',authenticate,(req,res,next)=> {
         url : url,
         body : JSON.stringify(obj)
     },(err,response,body)=> {
-        if(err)
-        {
-            // console.log('error in updating',err)
-            res.status(404).send({
-                message : ''
-            })
-        }else{
             if(response.statusCode==404)
             {
                 return  res.status(404).send({
@@ -130,13 +117,12 @@ app.post('/empUpdateCourses',authenticate,(req,res,next)=> {
                 })
             }
             res.status(200).send({message : 'added successfully'})
-        }
+        
     })
 })
 
 
 app.post('/empUpdateToDo',authenticate,(req,res,next)=> {
-    // var empId=localStorage.getItem('empId')
     var empId=req.user.empId
     var checkedSteps=req.body.tasks
     var obj={
@@ -149,11 +135,6 @@ app.post('/empUpdateToDo',authenticate,(req,res,next)=> {
         url : url,
         body : JSON.stringify(obj)
     },(err,response,body)=> {
-        if(err)
-        {
-            // console.log('error in updating',err)
-            res.send({message : ''})
-        }else{
             if(response.statusCode==404)
             {
                 return  res.status(404).send({
@@ -161,7 +142,7 @@ app.post('/empUpdateToDo',authenticate,(req,res,next)=> {
                 })
             }
             res.send({message : 'added successfully'})
-        }
+        
     })
 })
 
@@ -177,11 +158,10 @@ app.get('/adminDashboardEmployee' , authenticate,isAdmin,(req,res,next)=> {
    request.get({
        url : url
    }, (error,response,body)=> {
-       if(error){
-           // console.log('error in admin user', error)
-           res.send('')
-       }else{
-          
+          if(response.statusCode!=200)
+          {
+              return res.status(404)
+          }
            var output=JSON.parse(response.body)
            
            var allUsers=output.allemp
@@ -190,12 +170,6 @@ app.get('/adminDashboardEmployee' , authenticate,isAdmin,(req,res,next)=> {
            request.get({
                url : `${APIENDPOINT}/onboarding/all/userOnboarding`
            }, (error,response,body)=> {
-               if(error)
-               {
-                   res.status(404).send({
-                       message: ''
-                   })
-               }else{
                   if(response.statusCode==200)
                   {
                       var taskOutput=JSON.parse(response.body)
@@ -207,18 +181,12 @@ app.get('/adminDashboardEmployee' , authenticate,isAdmin,(req,res,next)=> {
                           message: ""
                       })
                   }
-               }
+               
            })
-       }
+       
    })
    
 })
-
-// app.get('/adminLogout', authenticate,isAdmin,(req, res) => {
-//    res.clearCookie('jwtGoogleToken')
-//    req.logout()
-   
-// });
 
 
 app.post('/adminAddEmployee',authenticate,isAdmin,(req,res,next)=> {
@@ -229,13 +197,6 @@ app.post('/adminAddEmployee',authenticate,isAdmin,(req,res,next)=> {
        url : url,
        body : JSON.stringify(empDetails)
    }, (error,response,body)=> {
-       if(error)
-       {
-           // console.log('error in add employee' ,error)
-           res.status(404).send({
-               message: ''
-           })
-       }else{
            if(response.statusCode==200)
            {
                res.send({message : 'added successfully'})
@@ -244,7 +205,7 @@ app.post('/adminAddEmployee',authenticate,isAdmin,(req,res,next)=> {
                    message: ""
                })
            }
-       }
+       
    })
 })
 
@@ -256,13 +217,6 @@ app.post('/editAnEmployee' ,authenticate,isAdmin ,(req,res,next)=> {
        url : url,
        body : JSON.stringify(details)
    }, (error,response,body)=> {
-       if(error)
-       {
-           // console.log('error in add employee' ,error)
-           res.status(404).send({
-               message: ''
-           })
-       }else{
            if(response.statusCode==200)
            {
                res.send({message : 'added successfully'})
@@ -271,11 +225,10 @@ app.post('/editAnEmployee' ,authenticate,isAdmin ,(req,res,next)=> {
                    message: ""
                })
            }
-       }
+       
    })
 })
-//add a to do task wrt designation
-//add a common to do task
+
 app.post('/addToDo' ,authenticate,isAdmin, (req,res,next)=> {
    var onboardDetails=req.body
 
@@ -285,13 +238,6 @@ app.post('/addToDo' ,authenticate,isAdmin, (req,res,next)=> {
        url : url,
        body : JSON.stringify(onboardDetails)
    },(error,response,body)=>{
-       if(error)
-       {
-           // console.log('error in add onboarding' ,error)
-           res.status(404).send({
-               message: ''
-           })
-       }else{
            if(response.statusCode==200)
            {
                res.send({message : 'added successfully'})
@@ -300,7 +246,7 @@ app.post('/addToDo' ,authenticate,isAdmin, (req,res,next)=> {
                    message: ""
                })
            }
-       }
+       
    })
 })
 
@@ -313,13 +259,6 @@ app.post('/addToDoforAll' , authenticate,isAdmin,(req,res,next)=> {
        url : url,
        body : JSON.stringify(onboardDetails)
    },(error,response,body)=>{
-       if(error)
-       {
-           // console.log('error in add task for all' ,error)
-           res.status(404).send({
-               message: ''
-           })
-       }else{
            if(response.statusCode==200)
            {
                res.send({message : 'added successfully'})
@@ -328,22 +267,15 @@ app.post('/addToDoforAll' , authenticate,isAdmin,(req,res,next)=> {
                    message: ""
                })
            }
-       }
+       
    })
 })
 
-//make a course
 app.get('/adminGetCourses', authenticate, isAdmin,(req,res,next)=> {
    var url=`${APIENDPOINT}/course/courses/all`
    request.get({
        url : url
    },(err,response,body)=> {
-       if(err)
-       {
-           res.status(404).send({
-               message: ''
-           })
-       }else{
           if(response.statusCode==200){ 
            var output=JSON.parse(response.body)
            var allCourses=output.courses
@@ -353,7 +285,7 @@ app.get('/adminGetCourses', authenticate, isAdmin,(req,res,next)=> {
                message: ""
            })
        }
-       }
+       
    })
 })
 app.post('/adminAddCourse' ,authenticate, isAdmin,(req,res,next)=> {
@@ -365,13 +297,6 @@ app.post('/adminAddCourse' ,authenticate, isAdmin,(req,res,next)=> {
        url : url,
        body : JSON.stringify(courseDetails)
    },(error,response,body)=>{
-       if(error)
-       {
-           // console.log('error in add task for all' ,error)
-           res.status(404).send({
-               message: ''
-           })
-       }else{
            if(response.statusCode==200)
            {
                res.send({message : 'added successfully'})
@@ -380,10 +305,9 @@ app.post('/adminAddCourse' ,authenticate, isAdmin,(req,res,next)=> {
                    message: ""
                })
            }
-       }
+       
    })
 })
-//add a new course for a designation
 app.post('/adminCourseDesignation' ,authenticate,isAdmin, (req,res,next)=> {
    var courseDetaills=req.body
    var url=`${APIENDPOINT}/course/designation/course`
@@ -392,13 +316,6 @@ app.post('/adminCourseDesignation' ,authenticate,isAdmin, (req,res,next)=> {
        url : url,
        body : JSON.stringify(courseDetaills)
    },(error,response,body)=>{
-       if(error)
-       {
-           // console.log('error in add task for all' ,error)
-           res.status(404).send({
-               message: ''
-           })
-       }else{
            if(response.statusCode==200)
            {
                res.send({message : 'added successfully'})
@@ -407,7 +324,7 @@ app.post('/adminCourseDesignation' ,authenticate,isAdmin, (req,res,next)=> {
                    message: ""
                })
            }
-       }
+       
    })
 })
 
@@ -419,13 +336,6 @@ app.post('/adminCourseforAll' ,authenticate,isAdmin, (req,res,next)=> {
         url : url,
         body : JSON.stringify(courseDetaills)
     },(error,response,body)=>{
-        if(error)
-        {
-            // console.log('error in add task for all' ,error)
-            res.status(404).send({
-                message: ''
-            })
-        }else{
             if(response.statusCode==200)
             {
                 res.send({message : 'added successfully'})
@@ -434,7 +344,7 @@ app.post('/adminCourseforAll' ,authenticate,isAdmin, (req,res,next)=> {
                     message: ""
                 })
             }
-        }
+        
     })
  })
 
@@ -446,13 +356,6 @@ app.post('/adminEditCourse', authenticate,isAdmin, (req,res,next)=> {
         url : url,
         body : JSON.stringify(courseDetails)
     },(error,response,body)=>{
-        if(error)
-        {
-            // console.log('error in add task for all' ,error)
-            res.status(404).send({
-                message: ''
-            })
-        }else{
             if(response.statusCode==200)
             {
                 res.send({message : 'added successfully'})
@@ -461,7 +364,7 @@ app.post('/adminEditCourse', authenticate,isAdmin, (req,res,next)=> {
                     message: ""
                 })
             }
-        }
+        
     })
 })
 
@@ -484,7 +387,6 @@ async function getRequestToEmployee(empId){
                 }else{
                 var out=JSON.parse(response.body)
                 var emp=out.emp
-                // console.log('Promise function' , emp)
                 resolve(emp)
                 }
     
@@ -512,7 +414,6 @@ async function getRequestToonBoarding(empId){
                 }else{
                 var out=JSON.parse(response.body)
                 var emp=out.tasks
-                // console.log('Promise function' , emp)
                 resolve(emp)
                 }
     
@@ -526,8 +427,6 @@ async function getRequestToonBoarding(empId){
 app.listen(PORT_SERVICE_EMPLOYEE || 7901, ()=> {
     console.log(`Employee service started on ${PORT_SERVICE_EMPLOYEE}`)
 })
-
-// console.log(APIENDPOINT)
 
 
 module.exports=app

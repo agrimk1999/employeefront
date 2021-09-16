@@ -294,6 +294,10 @@ let courses = [
 ]
 
 
+let wrongCourse= {
+    "course": "Not a valid coourse"
+}
+
 
 beforeEach((done) => {
     mongoose.connect("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false",
@@ -318,8 +322,9 @@ beforeEach((done) => {
 
  let token1='eyJhbGciOiJIUzI1NiJ9.YWdyaW1raDU0MzIxQGdtYWlsLmNvbQ.lA8bDKiqXAoMIlSam7dQBqwVfYtVfhoD1o5MALiBVbA'
  let token2='eyJhbGciOiJIUzI1NiJ9.YWdyaW0xMTI1NTE5ODFAZ21haWwuY29t.fCyHjjdxIAD0mlBCK6nsQTJaiwIQeQOFVhKt8up9ouw'
+let token3='eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFncmltay5pYy4xN0Buc2l0Lm5ldC5pbiJ9.ensyspOOkoBMJPirxT-yuEN_WhDwZUF2Dpr8LO0tP1U'
 
- test('Get Employee Dashboard' , async ()=> {
+test('Get Employee Dashboard' , async ()=> {
      await User.create({...empuser}).then(async ()=> {
        await onBoard.create({...onboardUser}).then(async ()=> {
            await supertest(app).get(`/empDashboard/${empuser.empId}`)
@@ -337,6 +342,7 @@ beforeEach((done) => {
     
      })
  })
+
 
  test('POST Update Employee Course' , async ()=> {
      await User.create({...empuser}).then(async ()=> {
@@ -356,6 +362,41 @@ beforeEach((done) => {
 
      
 
+ })
+
+
+ test('Error in update course for employee', async ()=> {
+    await User.create({...empuser}).then(async ()=> {
+        await supertest(app).post('/empUpdateCourses')
+        .set('Authorization',"Bearer "+token2)
+        .expect(404)
+        .send({
+            "empId": "something"
+        })
+        .then(async (response)=> {
+            console.log(response.body)
+            expect(response.body.message.length).toBe(0)
+      })
+      
+      
+      })
+ })
+
+ test('Error in update tasks for employee', async ()=> {
+    await User.create({...empuser}).then(async ()=> {
+        await supertest(app).post('/empUpdateToDo')
+        .set('Authorization',"Bearer "+token2)
+        .expect(404)
+        .send({
+            "empId": "something"
+        })
+        .then(async (response)=> {
+            console.log(response.body)
+            expect(response.body.message.length).toBe(0)
+      })
+      
+      
+      })
  })
 
 
@@ -458,6 +499,25 @@ beforeEach((done) => {
 
   })
 
+
+  test('Admin add an employee error', async ()=> {
+    await User.create({...user})
+    const tempUser=users[0]
+    await supertest(app).post('/adminAddEmployee')
+    .set('Authorization',"Bearer "+token1)
+    .set('Accept', 'application/json')
+    .send({
+        "empId": "nothing"
+    })
+    .expect(404)
+    .then(async (response)=> {
+        console.log(response.body)
+            expect(response.body.message.length).toBe(0)
+    })
+  })
+
+
+
   test('POST update an employee' , async ()=> {
     await User.create({...user})
     await User.create({...users[0]})
@@ -488,6 +548,24 @@ beforeEach((done) => {
      
   })
 
+  
+  test('Admin edit an employee error', async ()=> {
+    await User.create({...user})
+    const tempUser=users[0]
+    await supertest(app).post('/editAnEmployee')
+    .set('Authorization',"Bearer "+token1)
+    .set('Accept', 'application/json')
+    .send({
+        "empId": "nothing"
+    })
+    .expect(404)
+    .then(async (response)=> {
+        console.log(response.body)
+            expect(response.body.message.length).toBe(0)
+    })
+  })
+
+
 
   test('POST add onboarding task', async ()=> {
     await User.create({...user})
@@ -508,6 +586,22 @@ beforeEach((done) => {
           expect(output[0].steps.length).toBe(2)
           expect(output[0].steps[0].isCompleted).toBeFalsy()
       })
+  })
+
+  test('Admin add onboarding task error', async ()=> {
+    await User.create({...user})
+    const tempUser=users[0]
+    await supertest(app).post('/addToDo')
+    .set('Authorization',"Bearer "+token1)
+    .set('Accept', 'application/json')
+    .send({
+        "empId": "nothing"
+    })
+    .expect(404)
+    .then(async (response)=> {
+        console.log(response.body)
+            expect(response.body.message.length).toBe(0)
+    })
   })
 
 
@@ -541,6 +635,22 @@ beforeEach((done) => {
 
   })
 
+  test('Admin add onboarding task for all error', async ()=> {
+    await User.create({...user})
+    const tempUser=users[0]
+    await supertest(app).post('/addToDoforAll')
+    .set('Authorization',"Bearer "+token1)
+    .set('Accept', 'application/json')
+    .send({
+        "empId": "nothing"
+    })
+    .expect(404)
+    .then(async (response)=> {
+        console.log(response.body)
+            expect(response.body.message.length).toBe(0)
+    })
+  })
+
 
   test('POST add course' , async ()=> {
     await User.create({...user})
@@ -563,6 +673,17 @@ beforeEach((done) => {
   })
 
 
+  test('POST add course error' , async ()=> {
+    await User.create({...user})
+    await supertest(app).post('/adminAddCourse')
+    .set('Authorization',"Bearer "+token1)
+    .send(wrongCourse)
+    .expect(404)
+    .then(async (response)=> {
+        console.log(response.body)
+        expect(response.body.message.length).toBe(0)
+    })
+  })
 
   test('POST add course for designation' , async ()=> {
     await User.create({...user})
@@ -580,7 +701,33 @@ beforeEach((done) => {
           expect(output[0].courseID.length).toBe(5)
       })
   })
+  test('POST add course for designation error' , async ()=> {
+    await User.create({...user})
+    await supertest(app).post('/adminCourseDesignation')
+    .set('Authorization',"Bearer "+token1)
+    .send(wrongCourse)
+    .expect(404)
+    .then(async (response)=> {
+        console.log(response.body)
+        expect(response.body.message.length).toBe(0)
+    })
+  })
+//   test('POST add course for all designation' , async ()=> {
+//     await User.create({...user})
+//       await User.create({...users[0]})
+//       await User.create({...users[1]})
 
+//       await supertest(app).post('/adminCourseforAll')
+//       .set('Authorization',"Bearer "+token1)
+//       .send(courseAll)
+//       .expect(200)
+//       .then(async (response)=> {
+//           expect(response.body.message).toBe('added successfully')
+//           const output=await User.find({designation : 'Software'})
+//           expect(output.length).toBe(1)
+//           expect(output[0].courseID.length).toBe(4)
+//       })
+//   })
 
   test('GET all courses for admin', async ()=> {
     await User.create({...user})
@@ -597,3 +744,25 @@ beforeEach((done) => {
                })
       })
   })
+
+
+test('Admin edit existing course', async ()=> {
+    await User.create({...user})
+    await Course.create({...courses[0]})
+        await supertest(app).post('/adminEditCourse')
+        .set('Authorization',"Bearer "+token1)
+        .send({course: {
+            courseID : 'J',
+        courseName : 'JAVA',
+        summary : 'Do Java Courses now',
+        weightage : 45
+        }})
+        .expect(200)
+      .then(async (response)=> {
+          expect(response.body.message).toBe('added successfully')
+          const output=await Course.findOne({courseName : 'JAVA'})
+        //   console.log(output)
+          expect(output.summary).toBe('Do Java Courses now')
+          expect(output.weightage).toBe(45)
+      })
+    })

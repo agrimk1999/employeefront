@@ -11,13 +11,10 @@
   "servers": [
     {
       "url": "http://localhost:7901"
-    },
-    {
-      "url": "http://localhost:7902"
     }
   ],
   "apis" : [
-    "./microservices/*.service.js"
+    "./microservices/employee.service.js"
 
   ],
   "tags": [

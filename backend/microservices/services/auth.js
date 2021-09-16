@@ -19,7 +19,12 @@ router.post('/' ,  (req,res,next)=> {
                 }else{
                     // console.log(result)
                     console.log(result)
-                    
+                    if(!result)
+                    {
+                        return res.status(403).send({
+                            message: "User not registered with us. Contact your administrator!"
+                        })
+                    }
                     let jwtToken=jwt.sign(email , 'JWT_SECRET')
                     res.cookie({
                         "jwtGoogleToken" : jwtToken

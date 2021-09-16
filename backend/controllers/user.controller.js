@@ -47,6 +47,10 @@ router.post('/employee' , async (req,res,next)=> {
     //     return JSON.parse(element)
     // });
     // console.log(courses)
+    if(!empDetails.firstName)
+    {
+        return res.sendStatus(404)
+    }
    const user=await UserSchema.findOneAndUpdate({empId : empDetails.empId} , {
        $set : {
            ...empDetails
@@ -66,7 +70,12 @@ router.post('/employee' , async (req,res,next)=> {
                     res.sendStatus(404)
                 }else{
                     // console.log(response)
+                    if(response.statusCode==200)
+                    {
                     res.sendStatus(200)
+                    }else{
+                        res.sendStatus(404)
+                    }
                 }
             })
 

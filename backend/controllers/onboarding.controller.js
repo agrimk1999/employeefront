@@ -36,6 +36,10 @@ router.post('/:empId' , (req,res,next)=> {
     var details=req.body.details
 
     console.log(empId,details)
+    if(!details)
+    {
+        res.sendStatus(404)
+    }
     //we get here the tasks for the user
     // for loop for all employees
     // for loop for all designated employees
@@ -53,6 +57,10 @@ router.post('/:empId' , (req,res,next)=> {
     Promise.all(promises)
     .then((result)=> {
         console.log(result)
+        if(!result)
+        {
+            return res.sendStatus(403)
+        }
         res.sendStatus(200)
     }).catch((err)=> {
         console.log('error in marking to do true',err)
@@ -63,12 +71,25 @@ router.post('/:empId' , (req,res,next)=> {
 router.post('/add/employee' , async (req,res,next)=> {
     var output=req.body
     console.log('onboarding',output)
+    var initialSteps=[{
+        "id": "Submit documents"
+    },
+    {
+    "id": "Collect Laptop"
+    },
+    {
+        "id": "Collect ID"
+    }
+    ]
     await onboardSchema.findOneAndUpdate({empId : output.empId},
         {
             $set : {
                 designation : output.designation,
                 designation_id : output.designation_id,
 
+            },
+            $push:{
+                steps : initialSteps
             }
         }, {upsert : true}
         
@@ -76,7 +97,7 @@ router.post('/add/employee' , async (req,res,next)=> {
             res.sendStatus(200)
 
     }).catch((error)=> {
-        res.send(new Error('Cant add into onboarding'))
+        res.sendStatus(404)
     })
 })
 
@@ -85,6 +106,11 @@ router.post('/task/designation', (req,res,next)=> {
     var task=req.body.tasks
 
     console.log(designation,task)
+    if(!designation)
+    {
+        console.log('here in designation')
+        return res.sendStatus(404)
+    }
 
     onboardSchema.updateMany({designation : designation} , {
         $push : {
@@ -97,13 +123,18 @@ router.post('/task/designation', (req,res,next)=> {
             res.sendStatus(404)
         }else{
             console.log(result)
-            res.sendStatus(200)
+           return res.sendStatus(200)
+            
         }
     })
 })
 router.post('/task/forAll' , (req,res,next)=> {
     var task=req.body.tasks
     console.log(task)
+    if(!task)
+    {
+        return res.sendStatus(404)
+    }
     onboardSchema.updateMany({} , {
         $push : {
             steps : task

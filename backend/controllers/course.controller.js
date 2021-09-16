@@ -49,11 +49,14 @@ router.get('/:empId' , (req,res,next)=> {
 router.post('/update' , async (req,res,next)=> {
     var empId=req.body.empId
     var details=req.body.details
-    var courseName=details[0].id
-    var amount=details[0].amountCompleted
+    // var courseName=details[0].id
+    // var amount=details[0].amountCompleted
     //update employee information
     console.log(empId,details)
-    console.log(courseName,amount)
+    if(!req.body.details)
+    {
+        return res.sendStatus(404)
+    }
    const promises=details.map(async (det)=> {
     return await UserSchema.updateOne({
         empId : empId,
@@ -68,6 +71,10 @@ router.post('/update' , async (req,res,next)=> {
    Promise.all(promises)
    .then((response)=> {
        console.log(response)
+       if(!response)
+       {
+           return res.sendStatus(403)
+       }
        res.sendStatus(200)
    }).catch((err)=> {
        console.log('error in updating course amount completed',err)
@@ -104,6 +111,11 @@ router.post('/designation/course' , async (req,res,next)=> {
     var desgnation=req.body.designation
     var courses = req.body.courses
     console.log('course controller',desgnation,courses)
+    if(!desgnation)
+    {
+        return res.sendStatus(404)
+    }
+
     await UserSchema.updateMany({designation : desgnation} , {
         $push : {
             courseID : courses
@@ -120,6 +132,10 @@ router.post('/designation/course' , async (req,res,next)=> {
 
 router.post('/forall/course', async (req,res,next)=> {
     var courses = req.body.courses
+    if(!courses)
+    {
+        return res.sendStatus(404)
+    }
     console.log('course controller',desgnation,courses)
     await UserSchema.updateMany({} , {
         $push : {
