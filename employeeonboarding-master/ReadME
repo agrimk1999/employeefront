@@ -1,0 +1,12 @@
+Dependencies to download:
+
+//for materialUI
+npm install @material-ui/core
+
+//for materialUI icons
+npm install @material-ui/icons
+
+//for charts
+npm i --save @devexpress/dx-react-core @devexpress/dx-react-chart
+//chart compatibility with materialUI
+npm i --save @devexpress/dx-react-chart-material-ui

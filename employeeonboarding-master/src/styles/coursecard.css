@@ -1,0 +1,30 @@
+.card{
+    width: 200px;
+    height: 200px;
+    background-color: white;
+    
+    color: #333;
+    font-size: 50px;
+    margin: 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.b1{
+    font-size:15px;
+    margin: 5px;
+}
+.b2{
+    border-style: groove;
+    border-radius:10px;
+    font-size: 20px;
+    
+}
+.add{
+    margin: 5px;
+    z-index: 2;
+    
+}
+.sub{
+    margin: 5px;
+}

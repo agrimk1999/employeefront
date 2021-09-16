@@ -1,0 +1,9 @@
+.mainLauout{
+    margin: auto;
+    text-align: center;
+}
+
+.mainCard {
+    min-width: 350px;
+    min-height: 250px;
+}

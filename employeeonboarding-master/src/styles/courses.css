@@ -1,0 +1,42 @@
+.title {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.coursesTitle {
+    margin-bottom: 4px;
+}
+
+.coursesCard {
+    margin-bottom: 10px;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    border: none;
+    margin: auto;
+    text-align: center;
+}
+  
+th {
+    color: #00022e;
+}
+  
+th,
+td {
+    width: 150px;
+    text-align: center;
+    padding: 5px;
+}
+
+.content123 {
+    padding-top: 25px;
+    padding-left: 225px;
+}
+
+.label{
+    background-color: #3f51b5;
+    font-size: large;
+
+}

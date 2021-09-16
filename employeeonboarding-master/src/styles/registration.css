@@ -1,0 +1,32 @@
+.title {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.Title {
+    margin-bottom: 10px;
+}
+
+.Card {
+    margin-bottom: 10px;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    border: none;
+    margin: auto;
+    text-align: center;
+}
+  
+th {
+    color: #00022e;
+}
+  
+th,
+td {
+    width: 150px;
+    text-align: center;
+    /* border: 1px solid black; */
+    padding: 5px;
+}

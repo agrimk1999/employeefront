@@ -1,0 +1,67 @@
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: #000133;
+}
+
+/* .logo {
+	width: 30px;
+	height: 30px;
+	background-color: #d8dcd6;
+} */
+
+.header,
+.footer {
+  display: flex;
+  background: #00022e;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+  color: #fc86aa;
+}
+
+.header-title {
+  margin: auto;
+}
+
+a {
+	text-decoration: none;
+	color: #00022e;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+}
+
+.progress {
+  padding-top: 50px;
+  padding-left: 25px;
+  padding-bottom: 50px;
+  padding-right: 25px;
+}
+
+.completion div {
+	text-align: justify;
+}
+
+.toDoList {
+	margin: auto;
+	text-align: center;
+  padding-bottom: 25px;
+  max-width: 500px;
+}
+
+.courses {
+  margin: auto;
+  text-align: center;
+  max-width: 900px;
+}
+
+
+.main {
+  flex: 1;
+  background: #f7f5f5;
+}
